@@ -22,12 +22,16 @@ const state = {
 const els = {
   form: document.querySelector("#taskForm"),
   logDate: document.querySelector("#logDate"),
+  previousDayBtn: document.querySelector("#previousDayBtn"),
+  nextDayBtn: document.querySelector("#nextDayBtn"),
   person: document.querySelector("#person"),
   taskName: document.querySelector("#taskName"),
   category: document.querySelector("#category"),
   minutes: document.querySelector("#minutes"),
   notes: document.querySelector("#notes"),
   photo: document.querySelector("#photo"),
+  photoButtonText: document.querySelector("#photoButtonText"),
+  photoStatus: document.querySelector("#photoStatus"),
   myTaskCount: document.querySelector("#myTaskCount"),
   partnerTaskCount: document.querySelector("#partnerTaskCount"),
   myTime: document.querySelector("#myTime"),
@@ -64,6 +68,13 @@ function formatDate(value) {
     day: "numeric",
     year: "numeric"
   });
+}
+
+function shiftDate(days) {
+  const date = parseLocalDate(els.logDate.value || todayKey());
+  date.setDate(date.getDate() + days);
+  els.logDate.value = date.toISOString().slice(0, 10);
+  renderAll();
 }
 
 function minutesLabel(minutes) {
@@ -242,6 +253,14 @@ function renderAll() {
   renderReceipts();
 }
 
+function renderPhotoUploadStatus() {
+  const file = els.photo.files[0];
+  els.photoButtonText.textContent = file ? "Change photo proof" : "Add photo proof";
+  els.photoStatus.textContent = file
+    ? `Selected: ${file.name}`
+    : "Stored locally in your browser with the rest of your receipts.";
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -275,6 +294,7 @@ async function handleSubmit(event) {
   els.form.reset();
   els.logDate.value = receipt.date;
   els.minutes.value = 15;
+  renderPhotoUploadStatus();
   renderAll();
 }
 
@@ -374,6 +394,9 @@ function clearData() {
 function bindEvents() {
   els.form.addEventListener("submit", handleSubmit);
   els.logDate.addEventListener("change", renderAll);
+  els.previousDayBtn.addEventListener("click", () => shiftDate(-1));
+  els.nextDayBtn.addEventListener("click", () => shiftDate(1));
+  els.photo.addEventListener("change", renderPhotoUploadStatus);
   els.exportCsvBtn.addEventListener("click", exportCsv);
   els.exportPdfBtn.addEventListener("click", exportPdf);
   els.clearDataBtn.addEventListener("click", clearData);
@@ -391,6 +414,7 @@ function init() {
   populateCategories();
   loadReceipts();
   bindEvents();
+  renderPhotoUploadStatus();
   renderAll();
 }
 

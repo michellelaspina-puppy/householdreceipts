@@ -31,10 +31,14 @@
             <span class="status-pill">Private on this device</span>
             <h2>Today’s balance</h2>
           </div>
-          <label class="date-control">
+          <div class="date-control" aria-label="Choose receipt date">
             <span>Date</span>
-            <input id="logDate" type="date">
-          </label>
+            <div class="date-stepper">
+              <button class="icon-btn" id="previousDayBtn" type="button" aria-label="Previous day">‹</button>
+              <input id="logDate" type="date">
+              <button class="icon-btn" id="nextDayBtn" type="button" aria-label="Next day">›</button>
+            </div>
+          </div>
         </header>
 
         <section class="balance-grid" aria-label="Household balance dashboard">
@@ -108,7 +112,8 @@
             <label class="full file-input">
               <span>Photo proof</span>
               <input id="photo" type="file" accept="image/*">
-              <small>Stored locally in your browser with the rest of your receipts.</small>
+              <span class="upload-button" id="photoButtonText">Add photo proof</span>
+              <small id="photoStatus">Stored locally in your browser with the rest of your receipts.</small>
             </label>
 
             <button class="btn primary full" type="submit">Save receipt</button>
