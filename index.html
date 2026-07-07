@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Household Receipts</title>
+    <meta name="description" content="Track household labor, time, proof, and partner contributions privately on your device.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Household Receipts 2.0</p>
+          <h1>Household Receipts</h1>
+          <p class="tagline">Because someone has to keep the receipts.</p>
+          <p class="intro">Track the invisible work that keeps your household running. Log what got done, who did it, and how much time it took.</p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn primary" id="exportCsvBtn" type="button">Export spreadsheet</button>
+          <button class="btn secondary" id="exportPdfBtn" type="button">Export PDF</button>
+        </div>
+      </section>
+
+      <section class="phone-frame" aria-label="Household Receipts app dashboard">
+        <header class="app-header">
+          <div>
+            <span class="status-pill">Private on this device</span>
+            <h2>Today’s balance</h2>
+          </div>
+          <label class="date-control">
+            <span>Date</span>
+            <input id="logDate" type="date">
+          </label>
+        </header>
+
+        <section class="balance-grid" aria-label="Household balance dashboard">
+          <article class="metric-card mine">
+            <span>My tasks today</span>
+            <strong id="myTaskCount">0</strong>
+          </article>
+          <article class="metric-card partner">
+            <span>Partner tasks today</span>
+            <strong id="partnerTaskCount">0</strong>
+          </article>
+          <article class="metric-card">
+            <span>My time spent</span>
+            <strong id="myTime">0m</strong>
+          </article>
+          <article class="metric-card">
+            <span>Partner time spent</span>
+            <strong id="partnerTime">0m</strong>
+          </article>
+          <article class="metric-card wide">
+            <span>Time difference</span>
+            <strong id="timeDifference">Even</strong>
+          </article>
+          <article class="metric-card wide">
+            <span>Task count difference</span>
+            <strong id="taskDifference">Even</strong>
+          </article>
+        </section>
+
+        <section class="panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Daily task logging</p>
+              <h3>Add a receipt</h3>
+            </div>
+            <span class="microcopy">Factual. Funny. Useful later.</span>
+          </div>
+
+          <form id="taskForm" class="task-form">
+            <label>
+              <span>Who did it?</span>
+              <select id="person" required>
+                <option value="me">Me</option>
+                <option value="partner">Partner</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Task name</span>
+              <input id="taskName" type="text" placeholder="Packed lunches, called plumber, rescued laundry" required>
+            </label>
+
+            <label>
+              <span>Category</span>
+              <select id="category" required></select>
+            </label>
+
+            <label>
+              <span>Estimated time</span>
+              <div class="time-row">
+                <input id="minutes" type="number" min="1" max="1440" value="15" required>
+                <span>minutes</span>
+              </div>
+            </label>
+
+            <label class="full">
+              <span>Notes</span>
+              <textarea id="notes" rows="3" placeholder="Optional context, tiny victories, or future courtroom exhibits."></textarea>
+            </label>
+
+            <label class="full file-input">
+              <span>Photo proof</span>
+              <input id="photo" type="file" accept="image/*">
+              <small>Stored locally in your browser with the rest of your receipts.</small>
+            </label>
+
+            <button class="btn primary full" type="submit">Save receipt</button>
+          </form>
+        </section>
+
+        <section class="tabs" aria-label="Reports">
+          <button class="tab active" type="button" data-report="daily">Today</button>
+          <button class="tab" type="button" data-report="weekly">Weekly</button>
+          <button class="tab" type="button" data-report="monthly">Monthly</button>
+        </section>
+
+        <section class="panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow" id="reportEyebrow">Daily summary</p>
+              <h3 id="reportTitle">What got done</h3>
+            </div>
+            <span id="reportRange" class="microcopy"></span>
+          </div>
+          <div class="report-grid">
+            <div class="report-stat">
+              <span>Tasks completed</span>
+              <strong id="reportTasks">0</strong>
+            </div>
+            <div class="report-stat">
+              <span>Hours spent</span>
+              <strong id="reportHours">0.0</strong>
+            </div>
+            <div class="report-stat">
+              <span>My work</span>
+              <strong id="reportMine">0m</strong>
+            </div>
+            <div class="report-stat">
+              <span>Partner work</span>
+              <strong id="reportPartner">0m</strong>
+            </div>
+          </div>
+          <div id="categoryBreakdown" class="category-breakdown"></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Receipt roll</p>
+              <h3>Recent household work</h3>
+            </div>
+            <button class="text-btn" id="clearDataBtn" type="button">Clear all</button>
+          </div>
+          <div id="receiptList" class="receipt-list"></div>
+        </section>
+      </section>
+    </main>
+    <script src="app.js" defer></script>
+  </body>
+</html>
