@@ -498,3 +498,65 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Bold SaaS concept */
+
+:root {
+  --bg: #111417;
+  --surface: #171c20;
+  --surface-strong: #20272c;
+  --ink: #f7f3ea;
+  --muted: #b9c0bf;
+  --line: #334047;
+  --accent: #38b68d;
+  --accent-2: #ff8a5c;
+  --accent-3: #7aa7ff;
+  --soft-green: #17382e;
+  --soft-clay: #3a241d;
+  --shadow: 0 26px 90px rgba(0, 0, 0, 0.45);
+}
+
+body {
+  background: linear-gradient(135deg, #0f1215 0%, #171d22 55%, #252019 100%);
+}
+
+.hero {
+  min-height: 34vh;
+}
+
+.phone-frame {
+  border-color: #3f4b52;
+  background: rgba(16, 20, 23, 0.92);
+}
+
+.app-header,
+.panel,
+.tabs,
+.metric-card,
+.report-stat,
+.receipt-card {
+  background: var(--surface);
+  border-color: var(--line);
+}
+
+.metric-card.mine {
+  background: linear-gradient(135deg, #15372d, #1d4f3f);
+}
+
+.metric-card.partner {
+  background: linear-gradient(135deg, #3a211b, #553326);
+}
+
+.btn.secondary,
+input,
+select,
+textarea {
+  background: #101417;
+  color: var(--ink);
+}
+
+.tab.active {
+  background: var(--accent);
+  color: #06110d;
+}
