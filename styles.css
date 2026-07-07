@@ -498,3 +498,62 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Apple minimal concept */
+
+:root {
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface-strong: #ffffff;
+  --ink: #1d1d1f;
+  --muted: #6e6e73;
+  --line: #d9d9de;
+  --accent: #0071e3;
+  --accent-2: #bf5b3f;
+  --accent-3: #5856d6;
+  --soft-green: #eef6ff;
+  --soft-clay: #fff2ed;
+  --shadow: 0 18px 60px rgba(0, 0, 0, 0.12);
+}
+
+body {
+  background: #f5f5f7;
+}
+
+h1 {
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.phone-frame {
+  border-radius: 42px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.15);
+}
+
+.app-header,
+.panel,
+.tabs,
+.metric-card,
+.report-stat,
+.receipt-card {
+  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(60, 60, 67, 0.16);
+}
+
+.btn {
+  border-radius: 999px;
+}
+
+.btn.primary,
+.tab.active {
+  background: #0071e3;
+}
+
+input,
+select,
+textarea {
+  border-radius: 12px;
+  background: #fbfbfd;
+}
