@@ -498,3 +498,61 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Playful family concept */
+
+:root {
+  --bg: #fff7e8;
+  --surface: #fffaf0;
+  --surface-strong: #ffffff;
+  --ink: #2e271c;
+  --muted: #776b5b;
+  --line: #ead6ba;
+  --accent: #2f7f6f;
+  --accent-2: #df6157;
+  --accent-3: #f2b84b;
+  --soft-green: #e0f4ea;
+  --soft-clay: #ffe2d5;
+  --shadow: 0 24px 72px rgba(139, 83, 36, 0.16);
+}
+
+body {
+  background: linear-gradient(135deg, #fff8e9 0%, #ffe9dc 44%, #e6f4ed 100%);
+}
+
+.tagline {
+  color: #df6157;
+}
+
+.phone-frame {
+  border-radius: 30px;
+  transform: rotate(-0.4deg);
+}
+
+.panel,
+.metric-card,
+.report-stat,
+.receipt-card {
+  border-width: 2px;
+}
+
+.metric-card.mine {
+  background: #dff5e9;
+}
+
+.metric-card.partner {
+  background: #ffe3d5;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #2f7f6f, #3f9f8a);
+}
+
+.tab.active {
+  background: #df6157;
+}
+
+.person-badge {
+  border: 2px solid rgba(47, 127, 111, 0.18);
+}
