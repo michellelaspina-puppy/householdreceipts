@@ -13,7 +13,31 @@ const categories = [
   "Other"
 ];
 
+const dailyReceiptMessages = [
+  "Because \"someone\" isn't a person's name.",
+  "Still waiting for the dishwasher to load itself.",
+  "Household mysteries solved, one receipt at a time.",
+  "Today's chores: mysteriously not done... until now.",
+  "Another day, another \"I was just about to do that.\"",
+  "The official archive of things that definitely didn't happen by magic.",
+  "Laundry still refuses to fold itself.",
+  "Apparently the trash was waiting for permission.",
+  "The sink called. It misses being empty.",
+  "Dust continues to arrive uninvited.",
+  "Your future self appreciates today's receipt.",
+  "Chores don't disappear - they just change owners.",
+  "The to-do list has excellent memory.",
+  "Home ownership: the gift that keeps assigning chores.",
+  "Keeping receipts, not grudges.",
+  "If only good intentions cleaned bathrooms.",
+  "Every clean room has a story.",
+  "Some assembly required. Every day.",
+  "Today's accomplishments are now officially documented.",
+  "Another mystery solved: the house didn't clean itself."
+];
+
 const storageKey = "householdReceipts.v2";
+const dailyReceiptStorageKey = "householdReceipts.dailyReceipt";
 const state = {
   receipts: [],
   report: "daily"
@@ -22,16 +46,12 @@ const state = {
 const els = {
   form: document.querySelector("#taskForm"),
   logDate: document.querySelector("#logDate"),
-  previousDayBtn: document.querySelector("#previousDayBtn"),
-  nextDayBtn: document.querySelector("#nextDayBtn"),
   person: document.querySelector("#person"),
   taskName: document.querySelector("#taskName"),
   category: document.querySelector("#category"),
   minutes: document.querySelector("#minutes"),
   notes: document.querySelector("#notes"),
   photo: document.querySelector("#photo"),
-  photoButtonText: document.querySelector("#photoButtonText"),
-  photoStatus: document.querySelector("#photoStatus"),
   myTaskCount: document.querySelector("#myTaskCount"),
   partnerTaskCount: document.querySelector("#partnerTaskCount"),
   myTime: document.querySelector("#myTime"),
@@ -50,6 +70,7 @@ const els = {
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
   exportPdfBtn: document.querySelector("#exportPdfBtn"),
   clearDataBtn: document.querySelector("#clearDataBtn"),
+  dailyReceipt: document.querySelector("#dailyReceipt"),
   tabs: document.querySelectorAll(".tab")
 };
 
@@ -68,13 +89,6 @@ function formatDate(value) {
     day: "numeric",
     year: "numeric"
   });
-}
-
-function shiftDate(days) {
-  const date = parseLocalDate(els.logDate.value || todayKey());
-  date.setDate(date.getDate() + days);
-  els.logDate.value = date.toISOString().slice(0, 10);
-  renderAll();
 }
 
 function minutesLabel(minutes) {
@@ -100,6 +114,19 @@ function loadReceipts() {
 
 function saveReceipts() {
   localStorage.setItem(storageKey, JSON.stringify(state.receipts));
+}
+
+function chooseDailyReceiptMessage() {
+  const previous = localStorage.getItem(dailyReceiptStorageKey);
+  const choices = dailyReceiptMessages.filter((message) => message !== previous);
+  const pool = choices.length ? choices : dailyReceiptMessages;
+  const message = pool[Math.floor(Math.random() * pool.length)];
+  localStorage.setItem(dailyReceiptStorageKey, message);
+  return message;
+}
+
+function renderDailyReceipt() {
+  els.dailyReceipt.textContent = chooseDailyReceiptMessage();
 }
 
 function readPhoto(file) {
@@ -253,14 +280,6 @@ function renderAll() {
   renderReceipts();
 }
 
-function renderPhotoUploadStatus() {
-  const file = els.photo.files[0];
-  els.photoButtonText.textContent = file ? "Change photo proof" : "Add photo proof";
-  els.photoStatus.textContent = file
-    ? `Selected: ${file.name}`
-    : "Stored locally in your browser with the rest of your receipts.";
-}
-
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -294,7 +313,6 @@ async function handleSubmit(event) {
   els.form.reset();
   els.logDate.value = receipt.date;
   els.minutes.value = 15;
-  renderPhotoUploadStatus();
   renderAll();
 }
 
@@ -394,9 +412,6 @@ function clearData() {
 function bindEvents() {
   els.form.addEventListener("submit", handleSubmit);
   els.logDate.addEventListener("change", renderAll);
-  els.previousDayBtn.addEventListener("click", () => shiftDate(-1));
-  els.nextDayBtn.addEventListener("click", () => shiftDate(1));
-  els.photo.addEventListener("change", renderPhotoUploadStatus);
   els.exportCsvBtn.addEventListener("click", exportCsv);
   els.exportPdfBtn.addEventListener("click", exportPdf);
   els.clearDataBtn.addEventListener("click", clearData);
@@ -414,7 +429,7 @@ function init() {
   populateCategories();
   loadReceipts();
   bindEvents();
-  renderPhotoUploadStatus();
+  renderDailyReceipt();
   renderAll();
 }
 
