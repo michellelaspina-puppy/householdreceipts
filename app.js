@@ -46,6 +46,8 @@ const state = {
 const els = {
   form: document.querySelector("#taskForm"),
   logDate: document.querySelector("#logDate"),
+  previousDayBtn: document.querySelector("#previousDayBtn"),
+  nextDayBtn: document.querySelector("#nextDayBtn"),
   person: document.querySelector("#person"),
   taskName: document.querySelector("#taskName"),
   category: document.querySelector("#category"),
@@ -89,6 +91,13 @@ function formatDate(value) {
     day: "numeric",
     year: "numeric"
   });
+}
+
+function shiftDate(days) {
+  const date = parseLocalDate(els.logDate.value || todayKey());
+  date.setDate(date.getDate() + days);
+  els.logDate.value = date.toISOString().slice(0, 10);
+  renderAll();
 }
 
 function minutesLabel(minutes) {
@@ -412,6 +421,8 @@ function clearData() {
 function bindEvents() {
   els.form.addEventListener("submit", handleSubmit);
   els.logDate.addEventListener("change", renderAll);
+  els.previousDayBtn?.addEventListener("click", () => shiftDate(-1));
+  els.nextDayBtn?.addEventListener("click", () => shiftDate(1));
   els.exportCsvBtn.addEventListener("click", exportCsv);
   els.exportPdfBtn.addEventListener("click", exportPdf);
   els.clearDataBtn.addEventListener("click", clearData);
