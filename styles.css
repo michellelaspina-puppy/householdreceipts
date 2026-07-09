@@ -70,16 +70,18 @@ p {
 
 h1 {
   margin-bottom: 8px;
-  font-size: clamp(2.45rem, 12vw, 5.8rem);
+  font-size: clamp(2.25rem, 9.5vw, 4.9rem);
   line-height: 0.95;
   letter-spacing: 0;
 }
 
 .tagline {
-  margin-bottom: 10px;
+  max-width: 620px;
+  margin-bottom: 12px;
   color: var(--accent-2);
-  font-size: 1.05rem;
+  font-size: clamp(1.2rem, 3vw, 1.65rem);
   font-weight: 800;
+  line-height: 1.18;
 }
 
 .intro {
