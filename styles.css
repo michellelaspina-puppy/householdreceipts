@@ -325,6 +325,23 @@ textarea {
   padding: 18px;
 }
 
+.panel-copy {
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.backup-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.backup-actions .btn {
+  width: 100%;
+}
+
 .section-heading {
   display: flex;
   justify-content: space-between;
@@ -610,6 +627,7 @@ textarea {
   }
 
   .task-form,
+  .backup-actions,
   .balance-grid,
   .report-grid {
     grid-template-columns: 1fr;
