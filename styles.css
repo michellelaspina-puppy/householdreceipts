@@ -355,13 +355,13 @@ textarea {
   line-height: 1.55;
 }
 
-.backup-actions {
+.utility-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
-.backup-actions .btn {
+.utility-actions .btn {
   width: 100%;
 }
 
@@ -429,6 +429,28 @@ textarea {
 .file-input small {
   color: var(--muted);
   font-size: 0.78rem;
+}
+
+.file-input input[type="file"] {
+  padding: 9px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.file-input input[type="file"]::file-selector-button {
+  margin-right: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(0, 113, 227, 0.18);
+  border-radius: 999px;
+  background: var(--soft-green);
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+}
+
+.file-input input[type="file"]::file-selector-button:hover {
+  border-color: rgba(0, 113, 227, 0.34);
 }
 
 .tabs {
@@ -546,6 +568,16 @@ textarea {
   color: #5856d6;
 }
 
+.person-badge.friend {
+  background: #eef8f3;
+  color: #28785c;
+}
+
+.person-badge.family {
+  background: #fff5e8;
+  color: #9a5a18;
+}
+
 .receipt-meta {
   display: flex;
   flex-wrap: wrap;
@@ -625,7 +657,7 @@ textarea {
   }
 
   .task-form,
-  .backup-actions,
+  .utility-actions,
   .balance-grid,
   .report-grid {
     grid-template-columns: 1fr;

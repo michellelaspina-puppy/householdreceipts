@@ -69,6 +69,8 @@ const els = {
   reportMine: document.querySelector("#reportMine"),
   reportPartner: document.querySelector("#reportPartner"),
   reportChildren: document.querySelector("#reportChildren"),
+  reportFriend: document.querySelector("#reportFriend"),
+  reportFamily: document.querySelector("#reportFamily"),
   categoryBreakdown: document.querySelector("#categoryBreakdown"),
   receiptList: document.querySelector("#receiptList"),
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
@@ -122,6 +124,8 @@ function minutesLabel(minutes) {
 function personLabel(person) {
   if (person === "partner") return "Partner";
   if (person === "children") return "Kids / helpers";
+  if (person === "friend") return "Friend";
+  if (person === "family") return "Family";
   return "Me";
 }
 
@@ -210,7 +214,9 @@ function summarize(receipts) {
       people: {
         me: { tasks: 0, minutes: 0 },
         partner: { tasks: 0, minutes: 0 },
-        children: { tasks: 0, minutes: 0 }
+        children: { tasks: 0, minutes: 0 },
+        friend: { tasks: 0, minutes: 0 },
+        family: { tasks: 0, minutes: 0 }
       },
       categories: {}
     }
@@ -256,6 +262,8 @@ function renderReport() {
   els.reportMine.textContent = minutesLabel(summary.people.me.minutes);
   els.reportPartner.textContent = minutesLabel(summary.people.partner.minutes);
   els.reportChildren.textContent = minutesLabel(summary.people.children.minutes);
+  els.reportFriend.textContent = minutesLabel(summary.people.friend.minutes);
+  els.reportFamily.textContent = minutesLabel(summary.people.family.minutes);
 
   const categoryRows = Object.entries(summary.categories).sort((a, b) => b[1].minutes - a[1].minutes);
   const maxMinutes = Math.max(...categoryRows.map(([, item]) => item.minutes), 1);
@@ -285,7 +293,7 @@ function renderReceipts() {
               <h4>${escapeHtml(receipt.taskName)}</h4>
               <p>${escapeHtml(receipt.notes || "Logged. Counted. No confetti required.")}</p>
             </div>
-            <span class="person-badge ${receipt.person === "partner" ? "partner" : receipt.person === "children" ? "children" : ""}">${personLabel(receipt.person)}</span>
+            <span class="person-badge ${receipt.person === "partner" ? "partner" : ["children", "friend", "family"].includes(receipt.person) ? receipt.person : ""}">${personLabel(receipt.person)}</span>
           </div>
           <div class="receipt-meta">
             <span>${formatDate(receipt.date)}</span>
@@ -383,7 +391,7 @@ function normalizeImportedReceipts(data) {
     .map((receipt) => ({
       id: receipt.id || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
       date: receipt.date,
-      person: ["partner", "children"].includes(receipt.person) ? receipt.person : "me",
+      person: ["partner", "children", "friend", "family"].includes(receipt.person) ? receipt.person : "me",
       taskName: String(receipt.taskName || "").trim(),
       category: categories.includes(receipt.category) ? receipt.category : "Other",
       minutes: Number(receipt.minutes),

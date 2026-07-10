@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260710-proof-helpers">
+    <link rel="stylesheet" href="styles.css?v=20260710-utilities">
   </head>
   <body>
     <main class="app-shell">
@@ -18,10 +18,6 @@
           <h1>Household Receipts</h1>
           <p class="tagline">Turns out the house wasn't cleaning itself after all.</p>
           <p class="intro">Track the invisible work, the time it took, and the proof that keeps household labor from disappearing into thin air.</p>
-        </div>
-        <div class="hero-actions">
-          <button class="btn primary" id="exportCsvBtn" type="button">Export spreadsheet</button>
-          <button class="btn secondary" id="exportPdfBtn" type="button">Export PDF</button>
         </div>
       </section>
 
@@ -83,22 +79,6 @@
           </article>
         </section>
 
-        <section class="panel portability-panel">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Device backup</p>
-              <h3>Move receipts safely</h3>
-            </div>
-            <span class="microcopy">Local first. Yours to carry.</span>
-          </div>
-          <p class="panel-copy">Export a private backup file, then import it on another phone, tablet, or computer. Existing receipts stay put.</p>
-          <div class="backup-actions">
-            <button class="btn secondary" id="exportBackupBtn" type="button">Backup receipts</button>
-            <button class="btn secondary" id="importBackupBtn" type="button">Import backup</button>
-            <input class="hidden-input" id="importBackupInput" type="file" accept="application/json,.json">
-          </div>
-        </section>
-
         <section class="panel">
           <div class="section-heading">
             <div>
@@ -115,6 +95,8 @@
                 <option value="me">Me</option>
                 <option value="partner">Partner</option>
                 <option value="children">Kids / tiny helpers</option>
+                <option value="friend">Friend</option>
+                <option value="family">Family member</option>
               </select>
             </label>
 
@@ -186,6 +168,14 @@
               <span>Helpers</span>
               <strong id="reportChildren">0m</strong>
             </div>
+            <div class="report-stat">
+              <span>Friends</span>
+              <strong id="reportFriend">0m</strong>
+            </div>
+            <div class="report-stat">
+              <span>Family</span>
+              <strong id="reportFamily">0m</strong>
+            </div>
           </div>
           <div id="categoryBreakdown" class="category-breakdown"></div>
         </section>
@@ -200,9 +190,40 @@
           </div>
           <div id="receiptList" class="receipt-list"></div>
         </section>
+
+        <section class="panel export-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Exports</p>
+              <h3>Take the receipts with you</h3>
+            </div>
+            <span class="microcopy">Spreadsheet or PDF.</span>
+          </div>
+          <p class="panel-copy">Download a copy when you want to review, share, print, or save the paper trail somewhere else.</p>
+          <div class="utility-actions">
+            <button class="btn primary" id="exportCsvBtn" type="button">Export spreadsheet</button>
+            <button class="btn secondary" id="exportPdfBtn" type="button">Export PDF</button>
+          </div>
+        </section>
+
+        <section class="panel portability-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Device backup</p>
+              <h3>Move receipts safely</h3>
+            </div>
+            <span class="microcopy">Local first. Yours to carry.</span>
+          </div>
+          <p class="panel-copy">Export a private backup file, then import it on another phone, tablet, or computer. Existing receipts stay put.</p>
+          <div class="utility-actions">
+            <button class="btn secondary" id="exportBackupBtn" type="button">Backup receipts</button>
+            <button class="btn secondary" id="importBackupBtn" type="button">Import backup</button>
+            <input class="hidden-input" id="importBackupInput" type="file" accept="application/json,.json">
+          </div>
+        </section>
       </section>
     </main>
-    <script src="app.js?v=20260710-proof-helpers" defer></script>
+    <script src="app.js?v=20260710-utilities" defer></script>
   </body>
 </html>
 
