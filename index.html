@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260710-date-nav">
+    <link rel="stylesheet" href="styles.css?v=20260710-date-refine">
   </head>
   <body>
     <main class="app-shell">
@@ -28,16 +28,18 @@
       <section class="phone-frame" aria-label="Household Receipts app dashboard">
         <header class="app-header">
           <div>
-            <h2>Today’s balance</h2>
+            <h2>Today's balance</h2>
           </div>
           <label class="date-control">
-            <span>Date</span>
+            <span class="date-top">
+              <span>Date</span>
+              <button class="date-today-btn" id="todayBtn" type="button">Today</button>
+            </span>
             <div class="date-row">
-              <button class="date-nav-btn" id="previousDayBtn" type="button" aria-label="Previous day">‹</button>
+              <button class="date-nav-btn" id="previousDayBtn" type="button" aria-label="Previous day">&lt;</button>
               <input id="logDate" type="date">
-              <button class="date-nav-btn" id="nextDayBtn" type="button" aria-label="Next day">›</button>
+              <button class="date-nav-btn" id="nextDayBtn" type="button" aria-label="Next day">&gt;</button>
             </div>
-            <button class="date-today-btn" id="todayBtn" type="button">Today</button>
           </label>
         </header>
 
@@ -195,7 +197,7 @@
         </section>
       </section>
     </main>
-    <script src="app.js?v=20260710-date-nav" defer></script>
+    <script src="app.js?v=20260710-date-refine" defer></script>
   </body>
 </html>
 
