@@ -71,6 +71,9 @@ const els = {
   receiptList: document.querySelector("#receiptList"),
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
   exportPdfBtn: document.querySelector("#exportPdfBtn"),
+  exportBackupBtn: document.querySelector("#exportBackupBtn"),
+  importBackupBtn: document.querySelector("#importBackupBtn"),
+  importBackupInput: document.querySelector("#importBackupInput"),
   clearDataBtn: document.querySelector("#clearDataBtn"),
   dailyReceipt: document.querySelector("#dailyReceipt"),
   tabs: document.querySelectorAll(".tab")
@@ -345,6 +348,86 @@ function exportCsv() {
   downloadFile(`household-receipts-${todayKey()}.csv`, "text/csv;charset=utf-8", csv);
 }
 
+function exportBackup() {
+  const backup = {
+    app: "Household Receipts",
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    receipts: state.receipts
+  };
+
+  downloadFile(
+    `household-receipts-backup-${todayKey()}.json`,
+    "application/json;charset=utf-8",
+    JSON.stringify(backup, null, 2)
+  );
+}
+
+function normalizeImportedReceipts(data) {
+  const receipts = Array.isArray(data) ? data : data?.receipts;
+  if (!Array.isArray(receipts)) return [];
+
+  return receipts
+    .map((receipt) => ({
+      id: receipt.id || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
+      date: receipt.date,
+      person: receipt.person === "partner" ? "partner" : "me",
+      taskName: String(receipt.taskName || "").trim(),
+      category: categories.includes(receipt.category) ? receipt.category : "Other",
+      minutes: Number(receipt.minutes),
+      notes: String(receipt.notes || "").trim(),
+      photo: typeof receipt.photo === "string" ? receipt.photo : "",
+      createdAt: receipt.createdAt || new Date().toISOString()
+    }))
+    .filter((receipt) => receipt.date && receipt.taskName && Number.isFinite(receipt.minutes) && receipt.minutes > 0);
+}
+
+function mergeReceipts(importedReceipts) {
+  const existingIds = new Set(state.receipts.map((receipt) => receipt.id));
+  const merged = [...state.receipts];
+
+  importedReceipts.forEach((receipt) => {
+    if (!existingIds.has(receipt.id)) {
+      merged.push(receipt);
+      existingIds.add(receipt.id);
+    }
+  });
+
+  return merged;
+}
+
+async function importBackupFile(file) {
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    const importedReceipts = normalizeImportedReceipts(data);
+
+    if (!importedReceipts.length) {
+      alert("That backup did not include any receipts I could import.");
+      return;
+    }
+
+    const mergedReceipts = mergeReceipts(importedReceipts);
+    const addedCount = mergedReceipts.length - state.receipts.length;
+    const message = addedCount
+      ? `Import ${addedCount} new receipts from this backup? Existing receipts will stay on this device.`
+      : "This backup does not contain any new receipts to add.";
+
+    if (!addedCount || !confirm(message)) return;
+
+    state.receipts = mergedReceipts;
+    saveReceipts();
+    renderAll();
+    alert(`Imported ${addedCount} receipts.`);
+  } catch {
+    alert("I could not read that backup file. Please choose a Household Receipts JSON backup.");
+  } finally {
+    els.importBackupInput.value = "";
+  }
+}
+
 function exportPdf() {
   const range = getRange("monthly", els.logDate.value);
   const summary = summarize(receiptsInRange(range));
@@ -425,6 +508,9 @@ function bindEvents() {
   els.nextDayBtn?.addEventListener("click", () => shiftDate(1));
   els.exportCsvBtn.addEventListener("click", exportCsv);
   els.exportPdfBtn.addEventListener("click", exportPdf);
+  els.exportBackupBtn.addEventListener("click", exportBackup);
+  els.importBackupBtn.addEventListener("click", () => els.importBackupInput.click());
+  els.importBackupInput.addEventListener("change", () => importBackupFile(els.importBackupInput.files[0]));
   els.clearDataBtn.addEventListener("click", clearData);
   els.tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
