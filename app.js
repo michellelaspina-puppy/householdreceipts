@@ -156,7 +156,8 @@ function saveReceiptRollPreference() {
 function renderReceiptRollVisibility() {
   els.receiptRollPanel.classList.toggle("is-collapsed", state.receiptRollCollapsed);
   els.receiptList.hidden = state.receiptRollCollapsed;
-  els.toggleReceiptRollBtn.textContent = state.receiptRollCollapsed ? "Show" : "Hide";
+  els.receiptList.setAttribute("aria-hidden", String(state.receiptRollCollapsed));
+  els.toggleReceiptRollBtn.textContent = state.receiptRollCollapsed ? "Show roll" : "Hide roll";
   els.toggleReceiptRollBtn.setAttribute("aria-expanded", String(!state.receiptRollCollapsed));
 }
 

@@ -612,6 +612,10 @@ textarea {
   padding-bottom: 16px;
 }
 
+.receipt-roll-panel.is-collapsed .receipt-list {
+  display: none;
+}
+
 .text-btn {
   border: 0;
   background: transparent;
