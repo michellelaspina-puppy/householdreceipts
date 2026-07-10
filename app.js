@@ -68,6 +68,7 @@ const els = {
   reportHours: document.querySelector("#reportHours"),
   reportMine: document.querySelector("#reportMine"),
   reportPartner: document.querySelector("#reportPartner"),
+  reportChildren: document.querySelector("#reportChildren"),
   categoryBreakdown: document.querySelector("#categoryBreakdown"),
   receiptList: document.querySelector("#receiptList"),
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
@@ -119,7 +120,9 @@ function minutesLabel(minutes) {
 }
 
 function personLabel(person) {
-  return person === "partner" ? "Partner" : "Me";
+  if (person === "partner") return "Partner";
+  if (person === "children") return "Kids / helpers";
+  return "Me";
 }
 
 function loadReceipts() {
@@ -193,8 +196,9 @@ function summarize(receipts) {
     (summary, receipt) => {
       summary.tasks += 1;
       summary.minutes += receipt.minutes;
-      summary.people[receipt.person].tasks += 1;
-      summary.people[receipt.person].minutes += receipt.minutes;
+      const person = summary.people[receipt.person] ? receipt.person : "me";
+      summary.people[person].tasks += 1;
+      summary.people[person].minutes += receipt.minutes;
       summary.categories[receipt.category] = summary.categories[receipt.category] || { tasks: 0, minutes: 0 };
       summary.categories[receipt.category].tasks += 1;
       summary.categories[receipt.category].minutes += receipt.minutes;
@@ -205,7 +209,8 @@ function summarize(receipts) {
       minutes: 0,
       people: {
         me: { tasks: 0, minutes: 0 },
-        partner: { tasks: 0, minutes: 0 }
+        partner: { tasks: 0, minutes: 0 },
+        children: { tasks: 0, minutes: 0 }
       },
       categories: {}
     }
@@ -250,6 +255,7 @@ function renderReport() {
   els.reportHours.textContent = (summary.minutes / 60).toFixed(1);
   els.reportMine.textContent = minutesLabel(summary.people.me.minutes);
   els.reportPartner.textContent = minutesLabel(summary.people.partner.minutes);
+  els.reportChildren.textContent = minutesLabel(summary.people.children.minutes);
 
   const categoryRows = Object.entries(summary.categories).sort((a, b) => b[1].minutes - a[1].minutes);
   const maxMinutes = Math.max(...categoryRows.map(([, item]) => item.minutes), 1);
@@ -279,7 +285,7 @@ function renderReceipts() {
               <h4>${escapeHtml(receipt.taskName)}</h4>
               <p>${escapeHtml(receipt.notes || "Logged. Counted. No confetti required.")}</p>
             </div>
-            <span class="person-badge ${receipt.person === "partner" ? "partner" : ""}">${personLabel(receipt.person)}</span>
+            <span class="person-badge ${receipt.person === "partner" ? "partner" : receipt.person === "children" ? "children" : ""}">${personLabel(receipt.person)}</span>
           </div>
           <div class="receipt-meta">
             <span>${formatDate(receipt.date)}</span>
@@ -377,7 +383,7 @@ function normalizeImportedReceipts(data) {
     .map((receipt) => ({
       id: receipt.id || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
       date: receipt.date,
-      person: receipt.person === "partner" ? "partner" : "me",
+      person: ["partner", "children"].includes(receipt.person) ? receipt.person : "me",
       taskName: String(receipt.taskName || "").trim(),
       category: categories.includes(receipt.category) ? receipt.category : "Other",
       minutes: Number(receipt.minutes),
