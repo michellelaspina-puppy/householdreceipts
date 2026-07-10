@@ -14,6 +14,7 @@
     <main class="app-shell">
       <section class="hero">
         <div>
+          <p class="eyebrow">Proof, not paper.</p>
           <h1>Household Receipts</h1>
           <p class="tagline">Turns out the house wasn't cleaning itself after all.</p>
           <p class="intro">Track the invisible work, the time it took, and the proof that keeps household labor from disappearing into thin air.</p>
@@ -29,27 +30,28 @@
           <div>
             <h2>Today’s balance</h2>
           </div>
-          <div class="date-control" aria-label="Choose receipt date">
+          <label class="date-control">
             <span>Date</span>
-            <div class="date-stepper">
-              <button class="icon-btn" id="previousDayBtn" type="button" aria-label="Previous day">‹</button>
+            <div class="date-row">
               <input id="logDate" type="date">
-              <button class="icon-btn" id="nextDayBtn" type="button" aria-label="Next day">›</button>
+              <button class="date-today-btn" id="todayBtn" type="button">Today</button>
             </div>
-          </div>
+          </label>
         </header>
-<section class="daily-receipt-card" aria-label="Daily receipt">
-  <div class="receipt-icon" aria-hidden="true">
-    <svg viewBox="0 0 24 24" role="img">
-      <path d="M7 3h10a2 2 0 0 1 2 2v16l-2.5-1.4L14 21l-2-1.4L9.5 21 7 19.6 5 21V5a2 2 0 0 1 2-2Z"></path>
-      <path d="M9 8h6M9 12h6M9 16h4"></path>
-    </svg>
-  </div>
-  <div>
-    <p class="eyebrow">Daily Receipt</p>
-    <p id="dailyReceipt" class="daily-receipt-message"></p>
-  </div>
-</section>
+
+        <section class="daily-receipt-card" aria-label="Daily receipt">
+          <div class="receipt-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <path d="M7 3h10a2 2 0 0 1 2 2v16l-2.5-1.4L14 21l-2-1.4L9.5 21 7 19.6 5 21V5a2 2 0 0 1 2-2Z"></path>
+              <path d="M9 8h6M9 12h6M9 16h4"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="eyebrow">Daily Receipt</p>
+            <p id="dailyReceipt" class="daily-receipt-message"></p>
+          </div>
+        </section>
+
         <section class="balance-grid" aria-label="Household balance dashboard">
           <article class="metric-card mine">
             <span>My tasks today</span>
@@ -137,8 +139,7 @@
             <label class="full file-input">
               <span>Photo proof</span>
               <input id="photo" type="file" accept="image/*">
-              <span class="upload-button" id="photoButtonText">Add photo proof</span>
-              <small id="photoStatus">Stored locally in your browser with the rest of your receipts.</small>
+              <small>Stored locally in your browser with the rest of your receipts.</small>
             </label>
 
             <button class="btn primary full" type="submit">Save receipt</button>
