@@ -46,6 +46,7 @@ const state = {
 const els = {
   form: document.querySelector("#taskForm"),
   logDate: document.querySelector("#logDate"),
+  todayBtn: document.querySelector("#todayBtn"),
   previousDayBtn: document.querySelector("#previousDayBtn"),
   nextDayBtn: document.querySelector("#nextDayBtn"),
   person: document.querySelector("#person"),
@@ -100,6 +101,11 @@ function shiftDate(days) {
   const date = parseLocalDate(els.logDate.value || todayKey());
   date.setDate(date.getDate() + days);
   els.logDate.value = date.toISOString().slice(0, 10);
+  renderAll();
+}
+
+function jumpToToday() {
+  els.logDate.value = todayKey();
   renderAll();
 }
 
@@ -504,6 +510,7 @@ function clearData() {
 function bindEvents() {
   els.form.addEventListener("submit", handleSubmit);
   els.logDate.addEventListener("change", renderAll);
+  els.todayBtn.addEventListener("click", jumpToToday);
   els.previousDayBtn?.addEventListener("click", () => shiftDate(-1));
   els.nextDayBtn?.addEventListener("click", () => shiftDate(1));
   els.exportCsvBtn.addEventListener("click", exportCsv);
