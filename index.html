@@ -33,9 +33,11 @@
           <label class="date-control">
             <span>Date</span>
             <div class="date-row">
+              <button class="date-nav-btn" id="previousDayBtn" type="button" aria-label="Previous day">‹</button>
               <input id="logDate" type="date">
-              <button class="date-today-btn" id="todayBtn" type="button">Today</button>
+              <button class="date-nav-btn" id="nextDayBtn" type="button" aria-label="Next day">›</button>
             </div>
+            <button class="date-today-btn" id="todayBtn" type="button">Today</button>
           </label>
         </header>
 
@@ -193,7 +195,7 @@
         </section>
       </section>
     </main>
-    <script src="app.js?v=20260710-today" defer></script>
+    <script src="app.js?v=20260710-date-nav" defer></script>
   </body>
 </html>
 
