@@ -172,9 +172,9 @@ h1 {
 }
 
 .date-control {
-  min-width: 220px;
+  min-width: 238px;
   display: grid;
-  gap: 7px;
+  gap: 6px;
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 700;
@@ -182,7 +182,7 @@ h1 {
 
 .date-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
   gap: 8px;
   align-items: center;
 }
@@ -201,18 +201,37 @@ textarea {
 
 .date-control input {
   padding: 10px;
+  min-height: 42px;
+}
+
+.date-nav-btn {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-strong);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .date-today-btn {
-  min-height: 40px;
-  padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--surface-strong);
+  justify-self: end;
+  min-height: 30px;
+  padding: 0 13px;
+  border: 1px solid rgba(0, 113, 227, 0.16);
+  border-radius: 999px;
+  background: var(--soft-green);
   color: var(--accent);
   cursor: pointer;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 800;
+}
+
+.date-nav-btn:hover,
+.date-today-btn:hover {
+  border-color: rgba(0, 113, 227, 0.3);
 }
 
 .daily-receipt-card {
