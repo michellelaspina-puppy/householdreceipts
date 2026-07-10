@@ -21,9 +21,6 @@
         <div class="hero-actions">
           <button class="btn primary" id="exportCsvBtn" type="button">Export spreadsheet</button>
           <button class="btn secondary" id="exportPdfBtn" type="button">Export PDF</button>
-          <button class="btn secondary" id="exportBackupBtn" type="button">Backup receipts</button>
-          <button class="btn secondary" id="importBackupBtn" type="button">Import backup</button>
-          <input class="hidden-input" id="importBackupInput" type="file" accept="application/json,.json">
         </div>
       </section>
 
@@ -78,6 +75,22 @@
             <span>Task count difference</span>
             <strong id="taskDifference">Even</strong>
           </article>
+        </section>
+
+        <section class="panel portability-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Device backup</p>
+              <h3>Move receipts safely</h3>
+            </div>
+            <span class="microcopy">Local first. Yours to carry.</span>
+          </div>
+          <p class="panel-copy">Export a private backup file, then import it on another phone, tablet, or computer. Existing receipts stay put.</p>
+          <div class="backup-actions">
+            <button class="btn secondary" id="exportBackupBtn" type="button">Backup receipts</button>
+            <button class="btn secondary" id="importBackupBtn" type="button">Import backup</button>
+            <input class="hidden-input" id="importBackupInput" type="file" accept="application/json,.json">
+          </div>
         </section>
 
         <section class="panel">
