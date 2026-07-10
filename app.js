@@ -38,9 +38,11 @@ const dailyReceiptMessages = [
 
 const storageKey = "householdReceipts.v2";
 const dailyReceiptStorageKey = "householdReceipts.dailyReceipt";
+const receiptRollStorageKey = "householdReceipts.receiptRollCollapsed";
 const state = {
   receipts: [],
-  report: "daily"
+  report: "daily",
+  receiptRollCollapsed: false
 };
 
 const els = {
@@ -72,7 +74,9 @@ const els = {
   reportFriend: document.querySelector("#reportFriend"),
   reportFamily: document.querySelector("#reportFamily"),
   categoryBreakdown: document.querySelector("#categoryBreakdown"),
+  receiptRollPanel: document.querySelector("#receiptRollPanel"),
   receiptList: document.querySelector("#receiptList"),
+  toggleReceiptRollBtn: document.querySelector("#toggleReceiptRollBtn"),
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
   exportPdfBtn: document.querySelector("#exportPdfBtn"),
   exportBackupBtn: document.querySelector("#exportBackupBtn"),
@@ -139,6 +143,27 @@ function loadReceipts() {
 
 function saveReceipts() {
   localStorage.setItem(storageKey, JSON.stringify(state.receipts));
+}
+
+function loadReceiptRollPreference() {
+  state.receiptRollCollapsed = localStorage.getItem(receiptRollStorageKey) === "true";
+}
+
+function saveReceiptRollPreference() {
+  localStorage.setItem(receiptRollStorageKey, String(state.receiptRollCollapsed));
+}
+
+function renderReceiptRollVisibility() {
+  els.receiptRollPanel.classList.toggle("is-collapsed", state.receiptRollCollapsed);
+  els.receiptList.hidden = state.receiptRollCollapsed;
+  els.toggleReceiptRollBtn.textContent = state.receiptRollCollapsed ? "Show" : "Hide";
+  els.toggleReceiptRollBtn.setAttribute("aria-expanded", String(!state.receiptRollCollapsed));
+}
+
+function toggleReceiptRoll() {
+  state.receiptRollCollapsed = !state.receiptRollCollapsed;
+  saveReceiptRollPreference();
+  renderReceiptRollVisibility();
 }
 
 function chooseDailyReceiptMessage() {
@@ -310,6 +335,7 @@ function renderAll() {
   renderDashboard();
   renderReport();
   renderReceipts();
+  renderReceiptRollVisibility();
 }
 
 function escapeHtml(value) {
@@ -532,6 +558,7 @@ function bindEvents() {
   els.exportBackupBtn.addEventListener("click", exportBackup);
   els.importBackupBtn.addEventListener("click", () => els.importBackupInput.click());
   els.importBackupInput.addEventListener("change", () => importBackupFile(els.importBackupInput.files[0]));
+  els.toggleReceiptRollBtn.addEventListener("click", toggleReceiptRoll);
   els.clearDataBtn.addEventListener("click", clearData);
   els.tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -546,6 +573,7 @@ function init() {
   els.logDate.value = todayKey();
   populateCategories();
   loadReceipts();
+  loadReceiptRollPreference();
   bindEvents();
   renderDailyReceipt();
   renderAll();

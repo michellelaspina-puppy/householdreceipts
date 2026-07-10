@@ -372,6 +372,13 @@ textarea {
   margin-bottom: 16px;
 }
 
+.section-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 .section-heading h3 {
   margin-bottom: 0;
   font-size: 1.22rem;
@@ -599,6 +606,10 @@ textarea {
   object-fit: cover;
   border-radius: 16px;
   border: 1px solid var(--line);
+}
+
+.receipt-roll-panel.is-collapsed {
+  padding-bottom: 16px;
 }
 
 .text-btn {

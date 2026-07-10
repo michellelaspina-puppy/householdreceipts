@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260710-utilities">
+    <link rel="stylesheet" href="styles.css?v=20260710-receipt-roll">
   </head>
   <body>
     <main class="app-shell">
@@ -24,7 +24,7 @@
       <section class="phone-frame" aria-label="Household Receipts app dashboard">
         <header class="app-header">
           <div>
-            <h2>Today's proof</h2>
+            <h2>Today's Exhibit A</h2>
           </div>
           <label class="date-control">
             <span class="date-top">
@@ -180,13 +180,16 @@
           <div id="categoryBreakdown" class="category-breakdown"></div>
         </section>
 
-        <section class="panel">
+        <section class="panel receipt-roll-panel" id="receiptRollPanel">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Receipt roll</p>
               <h3>Recent household work</h3>
             </div>
-            <button class="text-btn" id="clearDataBtn" type="button">Clear all</button>
+            <div class="section-actions">
+              <button class="text-btn" id="toggleReceiptRollBtn" type="button" aria-expanded="true" aria-controls="receiptList">Hide</button>
+              <button class="text-btn" id="clearDataBtn" type="button">Clear all</button>
+            </div>
           </div>
           <div id="receiptList" class="receipt-list"></div>
         </section>
@@ -223,7 +226,7 @@
         </section>
       </section>
     </main>
-    <script src="app.js?v=20260710-utilities" defer></script>
+    <script src="app.js?v=20260710-receipt-roll" defer></script>
   </body>
 </html>
 
