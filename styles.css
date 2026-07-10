@@ -172,9 +172,9 @@ h1 {
 }
 
 .date-control {
-  min-width: 214px;
+  min-width: 220px;
   display: grid;
-  gap: 8px;
+  gap: 7px;
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 700;
@@ -184,7 +184,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
 }
 
 .date-row {
@@ -236,6 +236,7 @@ textarea {
   cursor: pointer;
   font-size: 0.7rem;
   font-weight: 800;
+  margin-right: 1px;
 }
 
 .date-nav-btn:hover,
@@ -538,6 +539,11 @@ textarea {
 .person-badge.partner {
   background: var(--soft-clay);
   color: #995337;
+}
+
+.person-badge.children {
+  background: #f4f1ff;
+  color: #5856d6;
 }
 
 .receipt-meta {
