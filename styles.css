@@ -174,7 +174,7 @@ h1 {
 .date-control {
   min-width: 220px;
   display: grid;
-  gap: 7px;
+  gap: 6px;
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 700;
@@ -183,8 +183,7 @@ h1 {
 .date-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-end;
 }
 
 .date-row {
