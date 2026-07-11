@@ -79,6 +79,11 @@ const els = {
   partnerTime: document.querySelector("#partnerTime"),
   timeDifference: document.querySelector("#timeDifference"),
   taskDifference: document.querySelector("#taskDifference"),
+  weeklyRange: document.querySelector("#weeklyRange"),
+  weeklyRecapMessage: document.querySelector("#weeklyRecapMessage"),
+  weeklyTasks: document.querySelector("#weeklyTasks"),
+  weeklyTime: document.querySelector("#weeklyTime"),
+  weeklyTopCategory: document.querySelector("#weeklyTopCategory"),
   reportEyebrow: document.querySelector("#reportEyebrow"),
   reportTitle: document.querySelector("#reportTitle"),
   reportRange: document.querySelector("#reportRange"),
@@ -333,6 +338,25 @@ function differenceLabel(myValue, partnerValue, unit) {
   return unit === "time" ? `${owner} +${minutesLabel(amount)}` : `${owner} +${amount}`;
 }
 
+function topCategoryLabel(summary) {
+  const topCategory = Object.entries(summary.categories).sort((a, b) => b[1].minutes - a[1].minutes)[0];
+  return topCategory ? topCategory[0] : "None yet";
+}
+
+function weeklyRecapLine(summary, topCategory) {
+  if (!summary.tasks) return "A quiet week so far. Suspicious, but peaceful.";
+
+  const categoryCount = Object.keys(summary.categories).length;
+  const time = minutesLabel(summary.minutes);
+  const categoryText = categoryCount === 1 ? "1 category" : `${categoryCount} categories`;
+
+  if (summary.tasks === 1) {
+    return `This week: 1 receipt, ${time}, and ${topCategory.toLowerCase()} officially entered the record.`;
+  }
+
+  return `This week: ${summary.tasks} receipts, ${time}, ${categoryText}, and one very documented household.`;
+}
+
 function renderDashboard() {
   const selectedDate = els.logDate.value;
   const todayReceipts = state.receipts.filter((receipt) => receipt.date === selectedDate);
@@ -344,6 +368,19 @@ function renderDashboard() {
   els.partnerTime.textContent = minutesLabel(summary.people.partner.minutes);
   els.timeDifference.textContent = differenceLabel(summary.people.me.minutes, summary.people.partner.minutes, "time");
   els.taskDifference.textContent = differenceLabel(summary.people.me.tasks, summary.people.partner.tasks, "tasks");
+}
+
+function renderWeeklyRecap() {
+  const range = getRange("weekly", els.logDate.value);
+  const weeklyReceipts = receiptsInRange(range);
+  const summary = summarize(weeklyReceipts);
+  const topCategory = topCategoryLabel(summary);
+
+  els.weeklyRange.textContent = `${formatDate(range.start)} - ${formatDate(range.end)}`;
+  els.weeklyTasks.textContent = summary.tasks;
+  els.weeklyTime.textContent = minutesLabel(summary.minutes);
+  els.weeklyTopCategory.textContent = topCategory;
+  els.weeklyRecapMessage.textContent = weeklyRecapLine(summary, topCategory);
 }
 
 function renderReport() {
@@ -432,6 +469,7 @@ function renderReceipts() {
 
 function renderAll() {
   renderDashboard();
+  renderWeeklyRecap();
   renderReport();
   renderReceipts();
   renderSummaryVisibility();

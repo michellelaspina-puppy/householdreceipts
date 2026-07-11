@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260711-export-options">
+    <link rel="stylesheet" href="styles.css?v=20260711-weekly-paper-trail">
   </head>
   <body>
     <main class="app-shell">
@@ -76,6 +76,31 @@
             <span>Task count difference</span>
             <strong id="taskDifference">Even</strong>
           </article>
+        </section>
+
+        <section class="weekly-recap-card" aria-label="Weekly paper trail">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Weekly Paper Trail</p>
+              <h3>This Week's Receipts</h3>
+            </div>
+            <span id="weeklyRange" class="microcopy"></span>
+          </div>
+          <p id="weeklyRecapMessage" class="weekly-recap-message"></p>
+          <div class="weekly-recap-grid">
+            <div>
+              <span>Receipts</span>
+              <strong id="weeklyTasks">0</strong>
+            </div>
+            <div>
+              <span>Time</span>
+              <strong id="weeklyTime">0m</strong>
+            </div>
+            <div>
+              <span>Top category</span>
+              <strong id="weeklyTopCategory">None yet</strong>
+            </div>
+          </div>
         </section>
 
         <section class="panel">
@@ -276,7 +301,7 @@
         </section>
       </section>
     </main>
-    <script src="app.js?v=20260711-export-options" defer></script>
+    <script src="app.js?v=20260711-weekly-paper-trail" defer></script>
   </body>
 </html>
 

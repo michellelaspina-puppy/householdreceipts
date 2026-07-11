@@ -345,6 +345,56 @@ textarea {
   line-height: 1.1;
 }
 
+.weekly-recap-card {
+  padding: 18px;
+  border: 1px solid rgba(60, 60, 67, 0.14);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.88);
+  display: grid;
+  gap: 14px;
+}
+
+.weekly-recap-card .section-heading {
+  margin-bottom: 0;
+}
+
+.weekly-recap-message {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.weekly-recap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.weekly-recap-grid div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(60, 60, 67, 0.12);
+  border-radius: 18px;
+  background: #fbfbfd;
+}
+
+.weekly-recap-grid span {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.weekly-recap-grid strong {
+  display: block;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
 .panel {
   padding: 18px;
 }
@@ -769,6 +819,7 @@ textarea:focus-visible {
   .utility-actions,
   .balance-grid,
   .report-grid,
+  .weekly-recap-grid,
   .receipt-tools,
   .export-options {
     grid-template-columns: 1fr;
