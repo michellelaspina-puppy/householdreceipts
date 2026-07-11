@@ -321,7 +321,7 @@ function renderReport() {
         <div class="category-row">
           <div class="category-meta">
             <span>${escapeHtml(category)}</span>
-            <span>${item.tasks} tasks · ${minutesLabel(item.minutes)}</span>
+            <span>${item.tasks} tasks - ${minutesLabel(item.minutes)}</span>
           </div>
           <div class="bar"><span style="width: ${(item.minutes / maxMinutes) * 100}%"></span></div>
         </div>
@@ -532,7 +532,7 @@ function exportPdf() {
       </head>
       <body>
         <h1>Household Receipts</h1>
-        <p class="tagline">Because someone has to keep the receipts.</p>
+        <p class="tagline">Turns out the house wasn't cleaning itself after all.</p>
         <p>${formatDate(range.start)} - ${formatDate(range.end)}</p>
         <div class="grid">
           <div class="card"><span>Tasks completed</span><strong>${summary.tasks}</strong></div>
