@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260711-receipt-filters">
+    <link rel="stylesheet" href="styles.css?v=20260711-custom-options">
   </head>
   <body>
     <main class="app-shell">
@@ -90,13 +90,7 @@
           <form id="taskForm" class="task-form">
             <label>
               <span>Who did it?</span>
-              <select id="person" required>
-                <option value="me">Me</option>
-                <option value="partner">Partner</option>
-                <option value="children">Kids / tiny helpers</option>
-                <option value="friend">Friend</option>
-                <option value="family">Family member</option>
-              </select>
+              <select id="person" required></select>
             </label>
 
             <label>
@@ -179,6 +173,10 @@
                 <span>Family</span>
                 <strong id="reportFamily">0m</strong>
               </div>
+              <div class="report-stat">
+                <span>Others</span>
+                <strong id="reportOther">0m</strong>
+              </div>
             </div>
             <div id="categoryBreakdown" class="category-breakdown"></div>
           </div>
@@ -247,7 +245,7 @@
         </section>
       </section>
     </main>
-    <script src="app.js?v=20260711-receipt-filters" defer></script>
+    <script src="app.js?v=20260711-custom-options" defer></script>
   </body>
 </html>
 

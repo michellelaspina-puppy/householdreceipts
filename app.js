@@ -1,4 +1,4 @@
-const categories = [
+const defaultCategories = [
   "Cleaning",
   "Cooking",
   "Laundry",
@@ -11,6 +11,14 @@ const categories = [
   "Emotional Labor",
   "Family/Admin",
   "Other"
+];
+
+const defaultPeople = [
+  { value: "me", label: "Me" },
+  { value: "partner", label: "Partner" },
+  { value: "children", label: "Kids / helpers" },
+  { value: "friend", label: "Friend" },
+  { value: "family", label: "Family" }
 ];
 
 const dailyReceiptMessages = [
@@ -40,8 +48,12 @@ const storageKey = "householdReceipts.v2";
 const dailyReceiptStorageKey = "householdReceipts.dailyReceipt";
 const summaryStorageKey = "householdReceipts.summaryCollapsed";
 const receiptRollStorageKey = "householdReceipts.receiptRollCollapsed";
+const customPeopleStorageKey = "householdReceipts.customPeople";
+const customCategoriesStorageKey = "householdReceipts.customCategories";
 const state = {
   receipts: [],
+  customPeople: [],
+  customCategories: [],
   report: "daily",
   receiptSearch: "",
   receiptPersonFilter: "all",
@@ -77,6 +89,7 @@ const els = {
   reportChildren: document.querySelector("#reportChildren"),
   reportFriend: document.querySelector("#reportFriend"),
   reportFamily: document.querySelector("#reportFamily"),
+  reportOther: document.querySelector("#reportOther"),
   reportDetails: document.querySelector("#reportDetails"),
   toggleSummaryBtn: document.querySelector("#toggleSummaryBtn"),
   categoryBreakdown: document.querySelector("#categoryBreakdown"),
@@ -134,11 +147,42 @@ function minutesLabel(minutes) {
 }
 
 function personLabel(person) {
-  if (person === "partner") return "Partner";
-  if (person === "children") return "Kids / helpers";
-  if (person === "friend") return "Friend";
-  if (person === "family") return "Family";
-  return "Me";
+  return getPeopleOptions().find((item) => item.value === person)?.label || "Me";
+}
+
+function personClass(person) {
+  return defaultPeople.some((item) => item.value === person) ? person : "custom";
+}
+
+function customValue(label, prefix) {
+  return `${prefix}-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || Date.now()}`;
+}
+
+function getPeopleOptions() {
+  return [...defaultPeople, ...state.customPeople];
+}
+
+function getCategoryOptions() {
+  return [...defaultCategories, ...state.customCategories];
+}
+
+function loadCustomOptions() {
+  try {
+    state.customPeople = JSON.parse(localStorage.getItem(customPeopleStorageKey)) || [];
+  } catch {
+    state.customPeople = [];
+  }
+
+  try {
+    state.customCategories = JSON.parse(localStorage.getItem(customCategoriesStorageKey)) || [];
+  } catch {
+    state.customCategories = [];
+  }
+}
+
+function saveCustomOptions() {
+  localStorage.setItem(customPeopleStorageKey, JSON.stringify(state.customPeople));
+  localStorage.setItem(customCategoriesStorageKey, JSON.stringify(state.customCategories));
 }
 
 function loadReceipts() {
@@ -252,7 +296,7 @@ function summarize(receipts) {
     (summary, receipt) => {
       summary.tasks += 1;
       summary.minutes += receipt.minutes;
-      const person = summary.people[receipt.person] ? receipt.person : "me";
+      const person = summary.people[receipt.person] ? receipt.person : "other";
       summary.people[person].tasks += 1;
       summary.people[person].minutes += receipt.minutes;
       summary.categories[receipt.category] = summary.categories[receipt.category] || { tasks: 0, minutes: 0 };
@@ -268,7 +312,8 @@ function summarize(receipts) {
         partner: { tasks: 0, minutes: 0 },
         children: { tasks: 0, minutes: 0 },
         friend: { tasks: 0, minutes: 0 },
-        family: { tasks: 0, minutes: 0 }
+        family: { tasks: 0, minutes: 0 },
+        other: { tasks: 0, minutes: 0 }
       },
       categories: {}
     }
@@ -316,6 +361,7 @@ function renderReport() {
   els.reportChildren.textContent = minutesLabel(summary.people.children.minutes);
   els.reportFriend.textContent = minutesLabel(summary.people.friend.minutes);
   els.reportFamily.textContent = minutesLabel(summary.people.family.minutes);
+  els.reportOther.textContent = minutesLabel(summary.people.other.minutes);
 
   const categoryRows = Object.entries(summary.categories).sort((a, b) => b[1].minutes - a[1].minutes);
   const maxMinutes = Math.max(...categoryRows.map(([, item]) => item.minutes), 1);
@@ -361,7 +407,7 @@ function renderReceipts() {
               <h4>${escapeHtml(receipt.taskName)}</h4>
               <p>${escapeHtml(receipt.notes || "Logged. Counted. No confetti required.")}</p>
             </div>
-            <span class="person-badge ${receipt.person === "partner" ? "partner" : ["children", "friend", "family"].includes(receipt.person) ? receipt.person : ""}">${personLabel(receipt.person)}</span>
+            <span class="person-badge ${personClass(receipt.person)}">${personLabel(receipt.person)}</span>
           </div>
           <div class="receipt-meta">
             <span>${formatDate(receipt.date)}</span>
@@ -396,8 +442,69 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function populateCategories() {
-  els.category.innerHTML = categories.map((category) => `<option value="${category}">${category}</option>`).join("");
+function populatePeople(selected = els.person.value || "me") {
+  const peopleOptions = getPeopleOptions()
+    .map((person) => `<option value="${escapeHtml(person.value)}">${escapeHtml(person.label)}</option>`)
+    .join("");
+  els.person.innerHTML = `${peopleOptions}<option value="__add_person__">Add someone...</option>`;
+  els.person.value = getPeopleOptions().some((person) => person.value === selected) ? selected : "me";
+}
+
+function populatePersonFilter() {
+  const peopleOptions = getPeopleOptions()
+    .map((person) => `<option value="${escapeHtml(person.value)}">${escapeHtml(person.label)}</option>`)
+    .join("");
+  els.receiptPersonFilter.innerHTML = `<option value="all">Everyone</option>${peopleOptions}`;
+  els.receiptPersonFilter.value = getPeopleOptions().some((person) => person.value === state.receiptPersonFilter)
+    ? state.receiptPersonFilter
+    : "all";
+}
+
+function populateCategories(selected = els.category.value || "Cleaning") {
+  const categoryOptions = getCategoryOptions()
+    .map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
+    .join("");
+  els.category.innerHTML = `${categoryOptions}<option value="__add_category__">Add category...</option>`;
+  els.category.value = getCategoryOptions().includes(selected) ? selected : "Cleaning";
+}
+
+function addCustomPerson() {
+  const label = prompt("Who should be added to the list?");
+  const trimmed = label?.trim();
+  if (!trimmed) {
+    populatePeople();
+    return;
+  }
+
+  const exists = getPeopleOptions().some((person) => person.label.toLowerCase() === trimmed.toLowerCase());
+  const value = exists ? getPeopleOptions().find((person) => person.label.toLowerCase() === trimmed.toLowerCase()).value : customValue(trimmed, "person");
+
+  if (!exists) {
+    state.customPeople.push({ value, label: trimmed });
+    saveCustomOptions();
+  }
+
+  populatePeople(value);
+  populatePersonFilter();
+}
+
+function addCustomCategory() {
+  const label = prompt("What category should be added?");
+  const trimmed = label?.trim();
+  if (!trimmed) {
+    populateCategories();
+    return;
+  }
+
+  const existing = getCategoryOptions().find((category) => category.toLowerCase() === trimmed.toLowerCase());
+  const category = existing || trimmed;
+
+  if (!existing) {
+    state.customCategories.push(category);
+    saveCustomOptions();
+  }
+
+  populateCategories(category);
 }
 
 async function handleSubmit(event) {
@@ -448,6 +555,8 @@ function exportBackup() {
     app: "Household Receipts",
     version: 2,
     exportedAt: new Date().toISOString(),
+    customPeople: state.customPeople,
+    customCategories: state.customCategories,
     receipts: state.receipts
   };
 
@@ -466,9 +575,9 @@ function normalizeImportedReceipts(data) {
     .map((receipt) => ({
       id: receipt.id || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
       date: receipt.date,
-      person: ["partner", "children", "friend", "family"].includes(receipt.person) ? receipt.person : "me",
+      person: getPeopleOptions().some((person) => person.value === receipt.person) ? receipt.person : "me",
       taskName: String(receipt.taskName || "").trim(),
-      category: categories.includes(receipt.category) ? receipt.category : "Other",
+      category: getCategoryOptions().includes(receipt.category) ? receipt.category : "Other",
       minutes: Number(receipt.minutes),
       notes: String(receipt.notes || "").trim(),
       photo: typeof receipt.photo === "string" ? receipt.photo : "",
@@ -491,12 +600,41 @@ function mergeReceipts(importedReceipts) {
   return merged;
 }
 
+function importCustomOptions(data) {
+  const importedPeople = Array.isArray(data?.customPeople) ? data.customPeople : [];
+  const importedCategories = Array.isArray(data?.customCategories) ? data.customCategories : [];
+  let changed = false;
+
+  importedPeople.forEach((person) => {
+    const label = String(person.label || "").trim();
+    const value = String(person.value || customValue(label, "person")).trim();
+    if (!label || getPeopleOptions().some((item) => item.value === value || item.label.toLowerCase() === label.toLowerCase())) return;
+    state.customPeople.push({ value, label });
+    changed = true;
+  });
+
+  importedCategories.forEach((category) => {
+    const label = String(category || "").trim();
+    if (!label || getCategoryOptions().some((item) => item.toLowerCase() === label.toLowerCase())) return;
+    state.customCategories.push(label);
+    changed = true;
+  });
+
+  if (changed) {
+    saveCustomOptions();
+    populatePeople();
+    populatePersonFilter();
+    populateCategories();
+  }
+}
+
 async function importBackupFile(file) {
   if (!file) return;
 
   try {
     const text = await file.text();
     const data = JSON.parse(text);
+    importCustomOptions(data);
     const importedReceipts = normalizeImportedReceipts(data);
 
     if (!importedReceipts.length) {
@@ -641,6 +779,12 @@ function updateReceiptFilters() {
 
 function bindEvents() {
   els.form.addEventListener("submit", handleSubmit);
+  els.person.addEventListener("change", () => {
+    if (els.person.value === "__add_person__") addCustomPerson();
+  });
+  els.category.addEventListener("change", () => {
+    if (els.category.value === "__add_category__") addCustomCategory();
+  });
   els.logDate.addEventListener("change", renderAll);
   els.todayBtn.addEventListener("click", jumpToToday);
   els.previousDayBtn?.addEventListener("click", () => shiftDate(-1));
@@ -667,6 +811,9 @@ function bindEvents() {
 
 function init() {
   els.logDate.value = todayKey();
+  loadCustomOptions();
+  populatePeople();
+  populatePersonFilter();
   populateCategories();
   loadReceipts();
   loadCollapsePreferences();

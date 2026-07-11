@@ -608,6 +608,11 @@ textarea {
   color: #9a5a18;
 }
 
+.person-badge.custom {
+  background: #f2f2f7;
+  color: #4f4f55;
+}
+
 .receipt-meta {
   display: flex;
   flex-wrap: wrap;
