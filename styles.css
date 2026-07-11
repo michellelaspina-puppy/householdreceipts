@@ -612,10 +612,18 @@ textarea {
 }
 
 .text-btn.danger {
+  min-height: auto;
+  padding: 7px 10px;
+  border: 1px solid rgba(180, 35, 24, 0.12);
+  background: #fff5f3;
   color: #b42318;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .text-btn.danger:hover {
+  background: #ffe9e5;
   color: #7a1b12;
 }
 
