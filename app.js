@@ -43,6 +43,8 @@ const receiptRollStorageKey = "householdReceipts.receiptRollCollapsed";
 const state = {
   receipts: [],
   report: "daily",
+  receiptSearch: "",
+  receiptPersonFilter: "all",
   summaryCollapsed: false,
   receiptRollCollapsed: false
 };
@@ -79,6 +81,8 @@ const els = {
   toggleSummaryBtn: document.querySelector("#toggleSummaryBtn"),
   categoryBreakdown: document.querySelector("#categoryBreakdown"),
   receiptRollPanel: document.querySelector("#receiptRollPanel"),
+  receiptSearch: document.querySelector("#receiptSearch"),
+  receiptPersonFilter: document.querySelector("#receiptPersonFilter"),
   receiptList: document.querySelector("#receiptList"),
   toggleReceiptRollBtn: document.querySelector("#toggleReceiptRollBtn"),
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
@@ -330,7 +334,23 @@ function renderReport() {
 }
 
 function renderReceipts() {
-  const sorted = [...state.receipts].sort((a, b) => `${b.date}${b.createdAt}`.localeCompare(`${a.date}${a.createdAt}`));
+  const query = state.receiptSearch.trim().toLowerCase();
+  const sorted = [...state.receipts]
+    .filter((receipt) => {
+      if (state.receiptPersonFilter !== "all" && receipt.person !== state.receiptPersonFilter) return false;
+      if (!query) return true;
+
+      const searchable = [
+        receipt.taskName,
+        receipt.notes,
+        receipt.category,
+        receipt.date,
+        personLabel(receipt.person)
+      ].join(" ").toLowerCase();
+
+      return searchable.includes(query);
+    })
+    .sort((a, b) => `${b.date}${b.createdAt}`.localeCompare(`${a.date}${a.createdAt}`));
   const visible = sorted.slice(0, 12);
 
   els.receiptList.innerHTML = visible.length
@@ -354,7 +374,9 @@ function renderReceipts() {
           ${receipt.photo ? `<img class="receipt-photo" src="${receipt.photo}" alt="Photo proof for ${escapeHtml(receipt.taskName)}">` : ""}
         </article>
       `).join("")
-    : `<div class="empty-state">No receipts yet. Log the first tiny miracle that kept the household moving.</div>`;
+    : state.receipts.length
+      ? `<div class="empty-state">No receipts match that search yet.</div>`
+      : `<div class="empty-state">No receipts yet. Log the first tiny miracle that kept the household moving.</div>`;
 }
 
 function renderAll() {
@@ -610,6 +632,13 @@ function handleReceiptListClick(event) {
   deleteReceipt(deleteButton.dataset.deleteReceipt);
 }
 
+function updateReceiptFilters() {
+  state.receiptSearch = els.receiptSearch.value;
+  state.receiptPersonFilter = els.receiptPersonFilter.value;
+  renderReceipts();
+  renderReceiptRollVisibility();
+}
+
 function bindEvents() {
   els.form.addEventListener("submit", handleSubmit);
   els.logDate.addEventListener("change", renderAll);
@@ -623,6 +652,8 @@ function bindEvents() {
   els.importBackupInput.addEventListener("change", () => importBackupFile(els.importBackupInput.files[0]));
   els.toggleSummaryBtn.addEventListener("click", toggleSummary);
   els.toggleReceiptRollBtn.addEventListener("click", toggleReceiptRoll);
+  els.receiptSearch.addEventListener("input", updateReceiptFilters);
+  els.receiptPersonFilter.addEventListener("change", updateReceiptFilters);
   els.receiptList.addEventListener("click", handleReceiptListClick);
   els.clearDataBtn.addEventListener("click", clearData);
   els.tabs.forEach((tab) => {

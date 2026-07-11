@@ -533,6 +533,23 @@ textarea {
   gap: 10px;
 }
 
+.receipt-tools {
+  margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px;
+  gap: 10px;
+}
+
+.receipt-tools label {
+  font-size: 0.74rem;
+}
+
+.receipt-tools input,
+.receipt-tools select {
+  min-height: 42px;
+  padding: 10px 12px;
+}
+
 .receipt-card {
   padding: 14px;
   border: 1px solid var(--line);
@@ -725,7 +742,8 @@ textarea:focus-visible {
   .task-form,
   .utility-actions,
   .balance-grid,
-  .report-grid {
+  .report-grid,
+  .receipt-tools {
     grid-template-columns: 1fr;
   }
 }

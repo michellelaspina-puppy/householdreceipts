@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260711-compact-delete">
+    <link rel="stylesheet" href="styles.css?v=20260711-receipt-filters">
   </head>
   <body>
     <main class="app-shell">
@@ -195,6 +195,23 @@
               <button class="text-btn" id="clearDataBtn" type="button">Clear all</button>
             </div>
           </div>
+          <div class="receipt-tools" aria-label="Receipt roll filters">
+            <label>
+              <span>Search receipts</span>
+              <input id="receiptSearch" type="search" placeholder="Search task, note, or category">
+            </label>
+            <label>
+              <span>Who</span>
+              <select id="receiptPersonFilter">
+                <option value="all">Everyone</option>
+                <option value="me">Me</option>
+                <option value="partner">Partner</option>
+                <option value="children">Kids / helpers</option>
+                <option value="friend">Friend</option>
+                <option value="family">Family</option>
+              </select>
+            </label>
+          </div>
           <div id="receiptList" class="receipt-list"></div>
         </section>
 
@@ -230,7 +247,7 @@
         </section>
       </section>
     </main>
-    <script src="app.js?v=20260711-compact-delete" defer></script>
+    <script src="app.js?v=20260711-receipt-filters" defer></script>
   </body>
 </html>
 
