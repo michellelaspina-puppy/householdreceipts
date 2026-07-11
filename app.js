@@ -76,7 +76,7 @@ const els = {
   categoryBreakdown: document.querySelector("#categoryBreakdown"),
   receiptRollPanel: document.querySelector("#receiptRollPanel"),
   receiptList: document.querySelector("#receiptList"),
-  toggleReceiptRollBtn: document.querySelector("#toggleReceiptRollBtn"),
+  toggleReceiptRollBtns: document.querySelectorAll(".toggle-receipt-roll-btn"),
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
   exportPdfBtn: document.querySelector("#exportPdfBtn"),
   exportBackupBtn: document.querySelector("#exportBackupBtn"),
@@ -157,8 +157,10 @@ function renderReceiptRollVisibility() {
   els.receiptRollPanel.classList.toggle("is-collapsed", state.receiptRollCollapsed);
   els.receiptList.hidden = state.receiptRollCollapsed;
   els.receiptList.setAttribute("aria-hidden", String(state.receiptRollCollapsed));
-  els.toggleReceiptRollBtn.textContent = state.receiptRollCollapsed ? "Show roll" : "Hide roll";
-  els.toggleReceiptRollBtn.setAttribute("aria-expanded", String(!state.receiptRollCollapsed));
+  els.toggleReceiptRollBtns.forEach((button) => {
+    button.textContent = state.receiptRollCollapsed ? "Show roll" : "Hide roll";
+    button.setAttribute("aria-expanded", String(!state.receiptRollCollapsed));
+  });
 }
 
 function toggleReceiptRoll() {
@@ -559,7 +561,7 @@ function bindEvents() {
   els.exportBackupBtn.addEventListener("click", exportBackup);
   els.importBackupBtn.addEventListener("click", () => els.importBackupInput.click());
   els.importBackupInput.addEventListener("change", () => importBackupFile(els.importBackupInput.files[0]));
-  els.toggleReceiptRollBtn.addEventListener("click", toggleReceiptRoll);
+  els.toggleReceiptRollBtns.forEach((button) => button.addEventListener("click", toggleReceiptRoll));
   els.clearDataBtn.addEventListener("click", clearData);
   els.tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
