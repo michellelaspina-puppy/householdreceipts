@@ -16,7 +16,7 @@ const defaultCategories = [
 const defaultPeople = [
   { value: "me", label: "Me" },
   { value: "partner", label: "Partner" },
-  { value: "children", label: "Kids / helpers" },
+  { value: "children", label: "Little helpers" },
   { value: "friend", label: "Friend" },
   { value: "family", label: "Family" }
 ];
