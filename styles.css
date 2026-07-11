@@ -606,6 +606,19 @@ textarea {
   font-weight: 800;
 }
 
+.receipt-card-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.text-btn.danger {
+  color: #b42318;
+}
+
+.text-btn.danger:hover {
+  color: #7a1b12;
+}
+
 .receipt-photo {
   width: 100%;
   max-height: 220px;

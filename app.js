@@ -335,7 +335,7 @@ function renderReceipts() {
 
   els.receiptList.innerHTML = visible.length
     ? visible.map((receipt) => `
-        <article class="receipt-card">
+        <article class="receipt-card" data-receipt-id="${escapeHtml(receipt.id)}">
           <div class="receipt-top">
             <div>
               <h4>${escapeHtml(receipt.taskName)}</h4>
@@ -347,6 +347,9 @@ function renderReceipts() {
             <span>${formatDate(receipt.date)}</span>
             <span>${escapeHtml(receipt.category)}</span>
             <span>${minutesLabel(receipt.minutes)}</span>
+          </div>
+          <div class="receipt-card-actions">
+            <button class="text-btn danger" type="button" data-delete-receipt="${escapeHtml(receipt.id)}">Delete</button>
           </div>
           ${receipt.photo ? `<img class="receipt-photo" src="${receipt.photo}" alt="Photo proof for ${escapeHtml(receipt.taskName)}">` : ""}
         </article>
@@ -500,7 +503,8 @@ async function importBackupFile(file) {
 
 function exportPdf() {
   const range = getRange("monthly", els.logDate.value);
-  const summary = summarize(receiptsInRange(range));
+  const monthlyReceipts = receiptsInRange(range).sort((a, b) => `${a.date}${a.createdAt}`.localeCompare(`${b.date}${b.createdAt}`));
+  const summary = summarize(monthlyReceipts);
   const popup = window.open("", "_blank");
   if (!popup) {
     alert("Please allow popups to create the PDF report.");
@@ -510,6 +514,18 @@ function exportPdf() {
   const categoryRows = Object.entries(summary.categories)
     .sort((a, b) => b[1].minutes - a[1].minutes)
     .map(([category, item]) => `<tr><td>${escapeHtml(category)}</td><td>${item.tasks}</td><td>${minutesLabel(item.minutes)}</td></tr>`)
+    .join("");
+  const receiptRows = monthlyReceipts
+    .map((receipt) => `
+      <tr>
+        <td>${formatDate(receipt.date)}</td>
+        <td>${escapeHtml(personLabel(receipt.person))}</td>
+        <td>${escapeHtml(receipt.taskName)}</td>
+        <td>${escapeHtml(receipt.category)}</td>
+        <td>${minutesLabel(receipt.minutes)}</td>
+        <td>${escapeHtml(receipt.notes || "")}</td>
+      </tr>
+    `)
     .join("");
 
   popup.document.write(`
@@ -526,8 +542,9 @@ function exportPdf() {
           .card span { color: #746d64; display: block; font-size: 12px; font-weight: 700; }
           .card strong { font-size: 22px; }
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border-bottom: 1px solid #e8dfd2; padding: 10px; text-align: left; }
+          th, td { border-bottom: 1px solid #e8dfd2; padding: 10px; text-align: left; vertical-align: top; }
           th { color: #746d64; font-size: 12px; text-transform: uppercase; }
+          td { font-size: 13px; line-height: 1.4; }
         </style>
       </head>
       <body>
@@ -544,6 +561,11 @@ function exportPdf() {
         <table>
           <thead><tr><th>Category</th><th>Tasks</th><th>Time</th></tr></thead>
           <tbody>${categoryRows || "<tr><td colspan='3'>No receipts in this month yet.</td></tr>"}</tbody>
+        </table>
+        <h2>Who Did What</h2>
+        <table>
+          <thead><tr><th>Date</th><th>Who</th><th>Task</th><th>Category</th><th>Time</th><th>Notes</th></tr></thead>
+          <tbody>${receiptRows || "<tr><td colspan='6'>No receipts in this month yet.</td></tr>"}</tbody>
         </table>
         <script>window.print();</script>
       </body>
@@ -571,6 +593,23 @@ function clearData() {
   }
 }
 
+function deleteReceipt(id) {
+  const receipt = state.receipts.find((item) => item.id === id);
+  if (!receipt) return;
+
+  if (confirm(`Delete "${receipt.taskName}" from ${formatDate(receipt.date)}?`)) {
+    state.receipts = state.receipts.filter((item) => item.id !== id);
+    saveReceipts();
+    renderAll();
+  }
+}
+
+function handleReceiptListClick(event) {
+  const deleteButton = event.target.closest("[data-delete-receipt]");
+  if (!deleteButton) return;
+  deleteReceipt(deleteButton.dataset.deleteReceipt);
+}
+
 function bindEvents() {
   els.form.addEventListener("submit", handleSubmit);
   els.logDate.addEventListener("change", renderAll);
@@ -584,6 +623,7 @@ function bindEvents() {
   els.importBackupInput.addEventListener("change", () => importBackupFile(els.importBackupInput.files[0]));
   els.toggleSummaryBtn.addEventListener("click", toggleSummary);
   els.toggleReceiptRollBtn.addEventListener("click", toggleReceiptRoll);
+  els.receiptList.addEventListener("click", handleReceiptListClick);
   els.clearDataBtn.addEventListener("click", clearData);
   els.tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
