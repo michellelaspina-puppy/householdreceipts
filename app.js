@@ -38,10 +38,12 @@ const dailyReceiptMessages = [
 
 const storageKey = "householdReceipts.v2";
 const dailyReceiptStorageKey = "householdReceipts.dailyReceipt";
+const summaryStorageKey = "householdReceipts.summaryCollapsed";
 const receiptRollStorageKey = "householdReceipts.receiptRollCollapsed";
 const state = {
   receipts: [],
   report: "daily",
+  summaryCollapsed: false,
   receiptRollCollapsed: false
 };
 
@@ -73,10 +75,12 @@ const els = {
   reportChildren: document.querySelector("#reportChildren"),
   reportFriend: document.querySelector("#reportFriend"),
   reportFamily: document.querySelector("#reportFamily"),
+  reportDetails: document.querySelector("#reportDetails"),
+  toggleSummaryBtn: document.querySelector("#toggleSummaryBtn"),
   categoryBreakdown: document.querySelector("#categoryBreakdown"),
   receiptRollPanel: document.querySelector("#receiptRollPanel"),
   receiptList: document.querySelector("#receiptList"),
-  toggleReceiptRollBtns: document.querySelectorAll(".toggle-receipt-roll-btn"),
+  toggleReceiptRollBtn: document.querySelector("#toggleReceiptRollBtn"),
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
   exportPdfBtn: document.querySelector("#exportPdfBtn"),
   exportBackupBtn: document.querySelector("#exportBackupBtn"),
@@ -145,22 +149,38 @@ function saveReceipts() {
   localStorage.setItem(storageKey, JSON.stringify(state.receipts));
 }
 
-function loadReceiptRollPreference() {
+function loadCollapsePreferences() {
+  state.summaryCollapsed = localStorage.getItem(summaryStorageKey) === "true";
   state.receiptRollCollapsed = localStorage.getItem(receiptRollStorageKey) === "true";
+}
+
+function saveSummaryPreference() {
+  localStorage.setItem(summaryStorageKey, String(state.summaryCollapsed));
 }
 
 function saveReceiptRollPreference() {
   localStorage.setItem(receiptRollStorageKey, String(state.receiptRollCollapsed));
 }
 
+function renderSummaryVisibility() {
+  els.reportDetails.hidden = state.summaryCollapsed;
+  els.reportDetails.setAttribute("aria-hidden", String(state.summaryCollapsed));
+  els.toggleSummaryBtn.textContent = state.summaryCollapsed ? "Show summary" : "Hide summary";
+  els.toggleSummaryBtn.setAttribute("aria-expanded", String(!state.summaryCollapsed));
+}
+
 function renderReceiptRollVisibility() {
   els.receiptRollPanel.classList.toggle("is-collapsed", state.receiptRollCollapsed);
-  els.receiptRollPanel.hidden = state.receiptRollCollapsed;
-  els.receiptRollPanel.setAttribute("aria-hidden", String(state.receiptRollCollapsed));
-  els.toggleReceiptRollBtns.forEach((button) => {
-    button.textContent = state.receiptRollCollapsed ? "Show roll" : "Hide roll";
-    button.setAttribute("aria-expanded", String(!state.receiptRollCollapsed));
-  });
+  els.receiptList.hidden = state.receiptRollCollapsed;
+  els.receiptList.setAttribute("aria-hidden", String(state.receiptRollCollapsed));
+  els.toggleReceiptRollBtn.textContent = state.receiptRollCollapsed ? "Show roll" : "Hide roll";
+  els.toggleReceiptRollBtn.setAttribute("aria-expanded", String(!state.receiptRollCollapsed));
+}
+
+function toggleSummary() {
+  state.summaryCollapsed = !state.summaryCollapsed;
+  saveSummaryPreference();
+  renderSummaryVisibility();
 }
 
 function toggleReceiptRoll() {
@@ -338,6 +358,7 @@ function renderAll() {
   renderDashboard();
   renderReport();
   renderReceipts();
+  renderSummaryVisibility();
   renderReceiptRollVisibility();
 }
 
@@ -561,7 +582,8 @@ function bindEvents() {
   els.exportBackupBtn.addEventListener("click", exportBackup);
   els.importBackupBtn.addEventListener("click", () => els.importBackupInput.click());
   els.importBackupInput.addEventListener("change", () => importBackupFile(els.importBackupInput.files[0]));
-  els.toggleReceiptRollBtns.forEach((button) => button.addEventListener("click", toggleReceiptRoll));
+  els.toggleSummaryBtn.addEventListener("click", toggleSummary);
+  els.toggleReceiptRollBtn.addEventListener("click", toggleReceiptRoll);
   els.clearDataBtn.addEventListener("click", clearData);
   els.tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -576,7 +598,7 @@ function init() {
   els.logDate.value = todayKey();
   populateCategories();
   loadReceipts();
-  loadReceiptRollPreference();
+  loadCollapsePreferences();
   bindEvents();
   renderDailyReceipt();
   renderAll();

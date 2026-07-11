@@ -489,6 +489,10 @@ textarea {
   gap: 10px;
 }
 
+.report-details[hidden] {
+  display: none;
+}
+
 .category-breakdown {
   margin-top: 14px;
   display: grid;
@@ -611,10 +615,6 @@ textarea {
 
 .receipt-roll-panel.is-collapsed {
   padding-bottom: 16px;
-}
-
-.receipt-roll-panel[hidden] {
-  display: none;
 }
 
 .receipt-roll-panel.is-collapsed .receipt-list {

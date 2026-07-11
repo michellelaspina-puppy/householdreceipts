@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260711-roll-panel">
+    <link rel="stylesheet" href="styles.css?v=20260711-section-toggles">
   </head>
   <body>
     <main class="app-shell">
@@ -146,40 +146,42 @@
             </div>
             <div class="section-actions">
               <span id="reportRange" class="microcopy"></span>
-              <button class="text-btn toggle-receipt-roll-btn" type="button" aria-expanded="true" aria-controls="receiptRollPanel">Hide roll</button>
+              <button class="text-btn" id="toggleSummaryBtn" type="button" aria-expanded="true" aria-controls="reportDetails">Hide summary</button>
             </div>
           </div>
-          <div class="report-grid">
-            <div class="report-stat">
-              <span>Tasks completed</span>
-              <strong id="reportTasks">0</strong>
+          <div id="reportDetails" class="report-details">
+            <div class="report-grid">
+              <div class="report-stat">
+                <span>Tasks completed</span>
+                <strong id="reportTasks">0</strong>
+              </div>
+              <div class="report-stat">
+                <span>Hours spent</span>
+                <strong id="reportHours">0.0</strong>
+              </div>
+              <div class="report-stat">
+                <span>My work</span>
+                <strong id="reportMine">0m</strong>
+              </div>
+              <div class="report-stat">
+                <span>Partner work</span>
+                <strong id="reportPartner">0m</strong>
+              </div>
+              <div class="report-stat">
+                <span>Helpers</span>
+                <strong id="reportChildren">0m</strong>
+              </div>
+              <div class="report-stat">
+                <span>Friends</span>
+                <strong id="reportFriend">0m</strong>
+              </div>
+              <div class="report-stat">
+                <span>Family</span>
+                <strong id="reportFamily">0m</strong>
+              </div>
             </div>
-            <div class="report-stat">
-              <span>Hours spent</span>
-              <strong id="reportHours">0.0</strong>
-            </div>
-            <div class="report-stat">
-              <span>My work</span>
-              <strong id="reportMine">0m</strong>
-            </div>
-            <div class="report-stat">
-              <span>Partner work</span>
-              <strong id="reportPartner">0m</strong>
-            </div>
-            <div class="report-stat">
-              <span>Helpers</span>
-              <strong id="reportChildren">0m</strong>
-            </div>
-            <div class="report-stat">
-              <span>Friends</span>
-              <strong id="reportFriend">0m</strong>
-            </div>
-            <div class="report-stat">
-              <span>Family</span>
-              <strong id="reportFamily">0m</strong>
-            </div>
+            <div id="categoryBreakdown" class="category-breakdown"></div>
           </div>
-          <div id="categoryBreakdown" class="category-breakdown"></div>
         </section>
 
         <section class="panel receipt-roll-panel" id="receiptRollPanel">
@@ -189,7 +191,7 @@
               <h3>Recent Household Work</h3>
             </div>
             <div class="section-actions">
-              <button class="text-btn toggle-receipt-roll-btn" type="button" aria-expanded="true" aria-controls="receiptRollPanel">Hide roll</button>
+              <button class="text-btn" id="toggleReceiptRollBtn" type="button" aria-expanded="true" aria-controls="receiptList">Hide roll</button>
               <button class="text-btn" id="clearDataBtn" type="button">Clear all</button>
             </div>
           </div>
@@ -228,7 +230,7 @@
         </section>
       </section>
     </main>
-    <script src="app.js?v=20260711-roll-panel" defer></script>
+    <script src="app.js?v=20260711-section-toggles" defer></script>
   </body>
 </html>
 
