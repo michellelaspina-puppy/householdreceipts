@@ -165,7 +165,7 @@ function saveReceiptRollPreference() {
 function renderSummaryVisibility() {
   els.reportDetails.hidden = state.summaryCollapsed;
   els.reportDetails.setAttribute("aria-hidden", String(state.summaryCollapsed));
-  els.toggleSummaryBtn.textContent = state.summaryCollapsed ? "Show summary" : "Hide summary";
+  els.toggleSummaryBtn.textContent = state.summaryCollapsed ? "Show details" : "Hide details";
   els.toggleSummaryBtn.setAttribute("aria-expanded", String(!state.summaryCollapsed));
 }
 
