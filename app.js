@@ -275,7 +275,7 @@ function renderReport() {
   const reportReceipts = receiptsInRange(range);
   const summary = summarize(reportReceipts);
   const titles = {
-    daily: ["Daily summary", "What got done"],
+    daily: ["Daily summary", "What Got Done"],
     weekly: ["Weekly report", "The week in household labor"],
     monthly: ["Monthly summary", "The monthly receipt stack"]
   };
