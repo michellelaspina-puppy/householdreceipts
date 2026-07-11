@@ -613,6 +613,10 @@ textarea {
   padding-bottom: 16px;
 }
 
+.receipt-roll-panel[hidden] {
+  display: none;
+}
+
 .receipt-roll-panel.is-collapsed .receipt-list {
   display: none;
 }
