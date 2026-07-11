@@ -100,6 +100,11 @@ const els = {
   toggleReceiptRollBtn: document.querySelector("#toggleReceiptRollBtn"),
   exportCsvBtn: document.querySelector("#exportCsvBtn"),
   exportPdfBtn: document.querySelector("#exportPdfBtn"),
+  exportRange: document.querySelector("#exportRange"),
+  exportPerson: document.querySelector("#exportPerson"),
+  exportDetail: document.querySelector("#exportDetail"),
+  exportStartDate: document.querySelector("#exportStartDate"),
+  exportEndDate: document.querySelector("#exportEndDate"),
   exportBackupBtn: document.querySelector("#exportBackupBtn"),
   importBackupBtn: document.querySelector("#importBackupBtn"),
   importBackupInput: document.querySelector("#importBackupInput"),
@@ -460,6 +465,15 @@ function populatePersonFilter() {
     : "all";
 }
 
+function populateExportPerson() {
+  const selected = els.exportPerson.value || "all";
+  const peopleOptions = getPeopleOptions()
+    .map((person) => `<option value="${escapeHtml(person.value)}">${escapeHtml(person.label)}</option>`)
+    .join("");
+  els.exportPerson.innerHTML = `<option value="all">Everyone</option>${peopleOptions}`;
+  els.exportPerson.value = getPeopleOptions().some((person) => person.value === selected) ? selected : "all";
+}
+
 function populateCategories(selected = els.category.value || "Cleaning") {
   const categoryOptions = getCategoryOptions()
     .map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
@@ -486,6 +500,7 @@ function addCustomPerson() {
 
   populatePeople(value);
   populatePersonFilter();
+  populateExportPerson();
 }
 
 function addCustomCategory() {
@@ -534,9 +549,65 @@ function csvCell(value) {
   return `"${String(value ?? "").replaceAll('"', '""')}"`;
 }
 
+function getExportRange() {
+  if (els.exportRange.value === "all") {
+    return { label: "All receipts", start: "", end: "" };
+  }
+
+  if (els.exportRange.value === "custom") {
+    const start = els.exportStartDate.value || todayKey();
+    const end = els.exportEndDate.value || start;
+    return start <= end
+      ? { label: `${formatDate(start)} - ${formatDate(end)}`, start, end }
+      : { label: `${formatDate(end)} - ${formatDate(start)}`, start: end, end: start };
+  }
+
+  const range = getRange(els.exportRange.value, els.logDate.value);
+  const labels = {
+    daily: "Selected day",
+    weekly: "Selected week",
+    monthly: "Selected month"
+  };
+
+  return {
+    ...range,
+    label: range.start === range.end ? `${labels[els.exportRange.value]}: ${formatDate(range.start)}` : `${labels[els.exportRange.value]}: ${formatDate(range.start)} - ${formatDate(range.end)}`
+  };
+}
+
+function getExportReceipts() {
+  const range = getExportRange();
+  return state.receipts
+    .filter((receipt) => {
+      const inRange = !range.start || (receipt.date >= range.start && receipt.date <= range.end);
+      const personMatches = els.exportPerson.value === "all" || receipt.person === els.exportPerson.value;
+      return inRange && personMatches;
+    })
+    .sort((a, b) => `${a.date}${a.createdAt}`.localeCompare(`${b.date}${b.createdAt}`));
+}
+
+function exportFileSuffix() {
+  const range = getExportRange();
+  const person = els.exportPerson.value === "all" ? "everyone" : personLabel(els.exportPerson.value).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const rangePart = range.start ? `${range.start}-to-${range.end}` : "all";
+  return `${rangePart}-${person}`;
+}
+
+function renderExportOptions() {
+  const isCustom = els.exportRange.value === "custom";
+  els.exportStartDate.closest("label").hidden = !isCustom;
+  els.exportEndDate.closest("label").hidden = !isCustom;
+
+  if (isCustom) {
+    els.exportStartDate.value ||= els.logDate.value || todayKey();
+    els.exportEndDate.value ||= els.logDate.value || todayKey();
+  }
+}
+
 function exportCsv() {
+  const exportReceipts = getExportReceipts();
   const headers = ["Date", "Person", "Task", "Category", "Minutes", "Hours", "Notes", "Has Photo"];
-  const rows = state.receipts.map((receipt) => [
+  const rows = exportReceipts.map((receipt) => [
     receipt.date,
     personLabel(receipt.person),
     receipt.taskName,
@@ -547,7 +618,7 @@ function exportCsv() {
     receipt.photo ? "Yes" : "No"
   ]);
   const csv = [headers, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
-  downloadFile(`household-receipts-${todayKey()}.csv`, "text/csv;charset=utf-8", csv);
+  downloadFile(`household-receipts-${exportFileSuffix()}.csv`, "text/csv;charset=utf-8", csv);
 }
 
 function exportBackup() {
@@ -624,6 +695,7 @@ function importCustomOptions(data) {
     saveCustomOptions();
     populatePeople();
     populatePersonFilter();
+    populateExportPerson();
     populateCategories();
   }
 }
@@ -662,9 +734,11 @@ async function importBackupFile(file) {
 }
 
 function exportPdf() {
-  const range = getRange("monthly", els.logDate.value);
-  const monthlyReceipts = receiptsInRange(range).sort((a, b) => `${a.date}${a.createdAt}`.localeCompare(`${b.date}${b.createdAt}`));
-  const summary = summarize(monthlyReceipts);
+  const range = getExportRange();
+  const exportReceipts = getExportReceipts();
+  const summary = summarize(exportReceipts);
+  const personLabelText = els.exportPerson.value === "all" ? "Everyone" : personLabel(els.exportPerson.value);
+  const includeReceiptList = els.exportDetail.value === "full";
   const popup = window.open("", "_blank");
   if (!popup) {
     alert("Please allow popups to create the PDF report.");
@@ -675,7 +749,7 @@ function exportPdf() {
     .sort((a, b) => b[1].minutes - a[1].minutes)
     .map(([category, item]) => `<tr><td>${escapeHtml(category)}</td><td>${item.tasks}</td><td>${minutesLabel(item.minutes)}</td></tr>`)
     .join("");
-  const receiptRows = monthlyReceipts
+  const receiptRows = exportReceipts
     .map((receipt) => `
       <tr>
         <td>${formatDate(receipt.date)}</td>
@@ -692,7 +766,7 @@ function exportPdf() {
     <!doctype html>
     <html>
       <head>
-        <title>Household Receipts Monthly Report</title>
+        <title>Household Receipts Report</title>
         <style>
           body { font-family: Inter, Arial, sans-serif; padding: 32px; color: #27231f; }
           h1 { margin-bottom: 0; font-size: 34px; }
@@ -710,7 +784,7 @@ function exportPdf() {
       <body>
         <h1>Household Receipts</h1>
         <p class="tagline">Turns out the house wasn't cleaning itself after all.</p>
-        <p>${formatDate(range.start)} - ${formatDate(range.end)}</p>
+        <p>${escapeHtml(range.label)} &middot; ${escapeHtml(personLabelText)}</p>
         <div class="grid">
           <div class="card"><span>Tasks completed</span><strong>${summary.tasks}</strong></div>
           <div class="card"><span>Hours spent</span><strong>${(summary.minutes / 60).toFixed(1)}</strong></div>
@@ -720,13 +794,15 @@ function exportPdf() {
         <h2>Categories</h2>
         <table>
           <thead><tr><th>Category</th><th>Tasks</th><th>Time</th></tr></thead>
-          <tbody>${categoryRows || "<tr><td colspan='3'>No receipts in this month yet.</td></tr>"}</tbody>
+          <tbody>${categoryRows || "<tr><td colspan='3'>No receipts in this export yet.</td></tr>"}</tbody>
         </table>
-        <h2>Who Did What</h2>
-        <table>
-          <thead><tr><th>Date</th><th>Who</th><th>Task</th><th>Category</th><th>Time</th><th>Notes</th></tr></thead>
-          <tbody>${receiptRows || "<tr><td colspan='6'>No receipts in this month yet.</td></tr>"}</tbody>
-        </table>
+        ${includeReceiptList ? `
+          <h2>Who Did What</h2>
+          <table>
+            <thead><tr><th>Date</th><th>Who</th><th>Task</th><th>Category</th><th>Time</th><th>Notes</th></tr></thead>
+            <tbody>${receiptRows || "<tr><td colspan='6'>No receipts in this export yet.</td></tr>"}</tbody>
+          </table>
+        ` : ""}
         <script>window.print();</script>
       </body>
     </html>
@@ -791,6 +867,7 @@ function bindEvents() {
   els.nextDayBtn?.addEventListener("click", () => shiftDate(1));
   els.exportCsvBtn.addEventListener("click", exportCsv);
   els.exportPdfBtn.addEventListener("click", exportPdf);
+  els.exportRange.addEventListener("change", renderExportOptions);
   els.exportBackupBtn.addEventListener("click", exportBackup);
   els.importBackupBtn.addEventListener("click", () => els.importBackupInput.click());
   els.importBackupInput.addEventListener("change", () => importBackupFile(els.importBackupInput.files[0]));
@@ -814,10 +891,12 @@ function init() {
   loadCustomOptions();
   populatePeople();
   populatePersonFilter();
+  populateExportPerson();
   populateCategories();
   loadReceipts();
   loadCollapsePreferences();
   bindEvents();
+  renderExportOptions();
   renderDailyReceipt();
   renderAll();
 }

@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260711-little-helpers">
+    <link rel="stylesheet" href="styles.css?v=20260711-export-options">
   </head>
   <body>
     <main class="app-shell">
@@ -222,6 +222,37 @@
             <span class="microcopy">Save, share, or print.</span>
           </div>
           <p class="panel-copy">Download a copy when you want to review, share, print, or save the paper trail somewhere else.</p>
+          <div class="export-options" aria-label="Export options">
+            <label>
+              <span>Date range</span>
+              <select id="exportRange">
+                <option value="daily">Selected day</option>
+                <option value="weekly">Selected week</option>
+                <option value="monthly">Selected month</option>
+                <option value="all">All receipts</option>
+                <option value="custom">Custom range</option>
+              </select>
+            </label>
+            <label>
+              <span>Who</span>
+              <select id="exportPerson"></select>
+            </label>
+            <label>
+              <span>PDF style</span>
+              <select id="exportDetail">
+                <option value="full">Summary + receipt list</option>
+                <option value="summary">Summary only</option>
+              </select>
+            </label>
+            <label class="export-custom-date">
+              <span>Start</span>
+              <input id="exportStartDate" type="date">
+            </label>
+            <label class="export-custom-date">
+              <span>End</span>
+              <input id="exportEndDate" type="date">
+            </label>
+          </div>
           <div class="utility-actions">
             <button class="btn primary" id="exportCsvBtn" type="button">Export Spreadsheet</button>
             <button class="btn secondary" id="exportPdfBtn" type="button">Export PDF</button>
@@ -245,7 +276,7 @@
         </section>
       </section>
     </main>
-    <script src="app.js?v=20260711-little-helpers" defer></script>
+    <script src="app.js?v=20260711-export-options" defer></script>
   </body>
 </html>
 

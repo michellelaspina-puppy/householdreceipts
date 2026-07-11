@@ -366,6 +366,27 @@ textarea {
   width: 100%;
 }
 
+.export-options {
+  margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.export-options label {
+  font-size: 0.74rem;
+}
+
+.export-options input,
+.export-options select {
+  min-height: 42px;
+  padding: 10px 12px;
+}
+
+.export-options label[hidden] {
+  display: none;
+}
+
 .section-heading {
   display: flex;
   justify-content: space-between;
@@ -748,7 +769,8 @@ textarea:focus-visible {
   .utility-actions,
   .balance-grid,
   .report-grid,
-  .receipt-tools {
+  .receipt-tools,
+  .export-options {
     grid-template-columns: 1fr;
   }
 }
