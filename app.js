@@ -24,6 +24,7 @@ const defaultPeople = [
 const supabaseUrl = "https://vmlhtctenyflsukdidji.supabase.co";
 const supabasePublishableKey = "sb_publishable_gj60sDaLrL1kPu4--QTbLQ_N--th0ZO";
 const supabaseClient = window.supabase?.createClient(supabaseUrl, supabasePublishableKey);
+const photoBucket = "receipt-photos";
 
 const dailyReceiptMessages = [
   "Because \"someone\" isn't a person's name.",
@@ -58,6 +59,7 @@ const state = {
   receipts: [],
   customPeople: [],
   customCategories: [],
+  photoUrls: {},
   session: null,
   report: "daily",
   receiptSearch: "",
@@ -268,6 +270,58 @@ function receiptToRow(receipt) {
   };
 }
 
+function isLocalPhoto(photo) {
+  return !photo || photo.startsWith("data:") || photo.startsWith("http");
+}
+
+function safeFileName(name) {
+  return String(name || "photo.jpg").toLowerCase().replace(/[^a-z0-9.]+/g, "-").replace(/^-|-$/g, "");
+}
+
+async function uploadPhotoProof(file, receiptId) {
+  if (!file || !state.session || !supabaseClient) return "";
+
+  const path = `${state.session.user.id}/${receiptId}-${Date.now()}-${safeFileName(file.name)}`;
+  const { error } = await supabaseClient.storage
+    .from(photoBucket)
+    .upload(path, file, {
+      cacheControl: "3600",
+      upsert: false
+    });
+
+  if (error) {
+    throw new Error(`Photo proof could not upload: ${error.message}`);
+  }
+
+  return path;
+}
+
+async function resolvePhotoUrls(receipts) {
+  if (!state.session || !supabaseClient) return;
+
+  const entries = await Promise.all(receipts.map(async (receipt) => {
+    if (!receipt.photo || isLocalPhoto(receipt.photo)) return [receipt.id, receipt.photo || ""];
+
+    const { data, error } = await supabaseClient.storage
+      .from(photoBucket)
+      .createSignedUrl(receipt.photo, 60 * 60);
+
+    return [receipt.id, error ? "" : data.signedUrl];
+  }));
+
+  state.photoUrls = Object.fromEntries(entries);
+}
+
+function receiptPhotoSrc(receipt) {
+  if (!receipt.photo) return "";
+  return isLocalPhoto(receipt.photo) ? receipt.photo : state.photoUrls[receipt.id] || "";
+}
+
+async function deleteStoredPhoto(photo) {
+  if (!photo || isLocalPhoto(photo) || !state.session || !supabaseClient) return;
+  await supabaseClient.storage.from(photoBucket).remove([photo]);
+}
+
 function loadCollapsePreferences() {
   state.summaryCollapsed = localStorage.getItem(summaryStorageKey) === "true";
   state.receiptRollCollapsed = localStorage.getItem(receiptRollStorageKey) === "true";
@@ -325,6 +379,7 @@ async function loadCloudReceipts() {
   }
 
   state.receipts = (data || []).map(rowToReceipt);
+  await resolvePhotoUrls(state.receipts);
   populatePeople();
   populatePersonFilter();
   populateExportPerson();
@@ -642,7 +697,9 @@ function renderReceipts() {
   const visible = sorted.slice(0, 12);
 
   els.receiptList.innerHTML = visible.length
-    ? visible.map((receipt) => `
+    ? visible.map((receipt) => {
+        const photoSrc = receiptPhotoSrc(receipt);
+        return `
         <article class="receipt-card" data-receipt-id="${escapeHtml(receipt.id)}">
           <div class="receipt-top">
             <div>
@@ -659,9 +716,10 @@ function renderReceipts() {
           <div class="receipt-card-actions">
             <button class="text-btn danger" type="button" data-delete-receipt="${escapeHtml(receipt.id)}">Delete</button>
           </div>
-          ${receipt.photo ? `<img class="receipt-photo" src="${receipt.photo}" alt="Photo proof for ${escapeHtml(receipt.taskName)}">` : ""}
+          ${photoSrc ? `<img class="receipt-photo" src="${photoSrc}" alt="Photo proof for ${escapeHtml(receipt.taskName)}">` : ""}
         </article>
-      `).join("")
+      `;
+      }).join("")
     : state.receipts.length
       ? `<div class="empty-state">No receipts match that search yet.</div>`
       : `<div class="empty-state">No receipts yet. Log the first tiny miracle that kept the household moving.</div>`;
@@ -762,9 +820,20 @@ function addCustomCategory() {
 
 async function handleSubmit(event) {
   event.preventDefault();
-  const photo = await readPhoto(els.photo.files[0]);
+  const receiptId = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
+  let photo = "";
+
+  try {
+    photo = state.session && supabaseClient
+      ? await uploadPhotoProof(els.photo.files[0], receiptId)
+      : await readPhoto(els.photo.files[0]);
+  } catch (error) {
+    alert(error.message);
+    return;
+  }
+
   const receipt = {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+    id: receiptId,
     date: els.logDate.value,
     person: els.person.value,
     taskName: els.taskName.value.trim(),
@@ -783,11 +852,14 @@ async function handleSubmit(event) {
       .single();
 
     if (error) {
+      await deleteStoredPhoto(photo);
       alert(`I could not save that receipt to your account: ${error.message}`);
       return;
     }
 
-    state.receipts.push(rowToReceipt(data));
+    const savedReceipt = rowToReceipt(data);
+    state.receipts.push(savedReceipt);
+    await resolvePhotoUrls([savedReceipt]);
   } else {
     state.receipts.push(receipt);
     saveReceipts();
@@ -1093,6 +1165,10 @@ async function clearData() {
   const location = state.session ? "cloud receipts in this account" : "locally stored receipts";
   if (confirm(`Clear all ${location}?`)) {
     if (state.session && supabaseClient) {
+      const storedPhotos = state.receipts
+        .map((receipt) => receipt.photo)
+        .filter((photo) => photo && !isLocalPhoto(photo));
+
       const { error } = await supabaseClient
         .from("receipts")
         .delete()
@@ -1102,9 +1178,14 @@ async function clearData() {
         alert(`I could not clear cloud receipts: ${error.message}`);
         return;
       }
+
+      if (storedPhotos.length) {
+        await supabaseClient.storage.from(photoBucket).remove(storedPhotos);
+      }
     }
 
     state.receipts = [];
+    state.photoUrls = {};
     saveReceipts();
     renderAll();
   }
@@ -1125,9 +1206,12 @@ async function deleteReceipt(id) {
         alert(`I could not delete that cloud receipt: ${error.message}`);
         return;
       }
+
+      await deleteStoredPhoto(receipt.photo);
     }
 
     state.receipts = state.receipts.filter((item) => item.id !== id);
+    delete state.photoUrls[id];
     saveReceipts();
     renderAll();
   }
