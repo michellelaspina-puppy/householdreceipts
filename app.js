@@ -404,12 +404,22 @@ async function handleSignIn(event) {
   });
 
   if (error) {
-    alert(`I could not send the sign-in link: ${error.message}`);
+    alert(signInErrorMessage(error));
     return;
   }
 
   els.authEmail.value = "";
   alert("Check your email for the Household Receipts sign-in link.");
+}
+
+function signInErrorMessage(error) {
+  const message = String(error?.message || "");
+
+  if (message.toLowerCase().includes("rate limit")) {
+    return "Too many sign-in emails were requested too quickly. Please wait 30-60 minutes, then try one new sign-in link.";
+  }
+
+  return `I could not send the sign-in link: ${message}`;
 }
 
 async function handleSignOut() {
