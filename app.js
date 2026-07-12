@@ -21,6 +21,10 @@ const defaultPeople = [
   { value: "family", label: "Family" }
 ];
 
+const supabaseUrl = "https://vmlhtctenyflsukdidji.supabase.co";
+const supabasePublishableKey = "sb_publishable_gj60sDaLrL1kPu4--QTbLQ_N--th0ZO";
+const supabaseClient = window.supabase?.createClient(supabaseUrl, supabasePublishableKey);
+
 const dailyReceiptMessages = [
   "Because \"someone\" isn't a person's name.",
   "Still waiting for the dishwasher to load itself.",
@@ -54,6 +58,7 @@ const state = {
   receipts: [],
   customPeople: [],
   customCategories: [],
+  session: null,
   report: "daily",
   receiptSearch: "",
   receiptPersonFilter: "all",
@@ -63,6 +68,12 @@ const state = {
 
 const els = {
   form: document.querySelector("#taskForm"),
+  authForm: document.querySelector("#authForm"),
+  authEmail: document.querySelector("#authEmail"),
+  accountTitle: document.querySelector("#accountTitle"),
+  accountStatus: document.querySelector("#accountStatus"),
+  migrateReceiptsBtn: document.querySelector("#migrateReceiptsBtn"),
+  signOutBtn: document.querySelector("#signOutBtn"),
   logDate: document.querySelector("#logDate"),
   todayBtn: document.querySelector("#todayBtn"),
   previousDayBtn: document.querySelector("#previousDayBtn"),
@@ -157,7 +168,7 @@ function minutesLabel(minutes) {
 }
 
 function personLabel(person) {
-  return getPeopleOptions().find((item) => item.value === person)?.label || "Me";
+  return getPeopleOptions().find((item) => item.value === person)?.label || person || "Me";
 }
 
 function personClass(person) {
@@ -165,6 +176,7 @@ function personClass(person) {
 }
 
 function customValue(label, prefix) {
+  if (prefix === "person") return label;
   return `${prefix}-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || Date.now()}`;
 }
 
@@ -195,16 +207,65 @@ function saveCustomOptions() {
   localStorage.setItem(customCategoriesStorageKey, JSON.stringify(state.customCategories));
 }
 
-function loadReceipts() {
+function isDefaultPerson(person) {
+  return defaultPeople.some((item) => item.value === person);
+}
+
+function ensureCustomPersonOption(person) {
+  if (!person || isDefaultPerson(person) || getPeopleOptions().some((item) => item.value === person)) return;
+  state.customPeople.push({ value: person, label: person });
+  saveCustomOptions();
+}
+
+function getLocalReceipts() {
   try {
-    state.receipts = JSON.parse(localStorage.getItem(storageKey)) || [];
+    return JSON.parse(localStorage.getItem(storageKey)) || [];
   } catch {
-    state.receipts = [];
+    return [];
   }
 }
 
+function loadReceipts() {
+  state.receipts = getLocalReceipts();
+}
+
 function saveReceipts() {
-  localStorage.setItem(storageKey, JSON.stringify(state.receipts));
+  if (!state.session) {
+    localStorage.setItem(storageKey, JSON.stringify(state.receipts));
+  }
+}
+
+function rowToReceipt(row) {
+  ensureCustomPersonOption(row.person);
+
+  return {
+    id: row.id,
+    date: row.receipt_date,
+    person: row.person,
+    taskName: row.task_name,
+    category: row.category,
+    minutes: row.minutes,
+    notes: row.notes || "",
+    photo: row.photo_url || "",
+    createdAt: row.created_at
+  };
+}
+
+function receiptToRow(receipt) {
+  return {
+    id: receipt.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(receipt.id)
+      ? receipt.id
+      : crypto.randomUUID(),
+    user_id: state.session.user.id,
+    receipt_date: receipt.date,
+    person: isDefaultPerson(receipt.person) ? receipt.person : personLabel(receipt.person),
+    task_name: receipt.taskName,
+    category: receipt.category,
+    minutes: receipt.minutes,
+    notes: receipt.notes || null,
+    photo_url: receipt.photo || null,
+    created_at: receipt.createdAt
+  };
 }
 
 function loadCollapsePreferences() {
@@ -218,6 +279,145 @@ function saveSummaryPreference() {
 
 function saveReceiptRollPreference() {
   localStorage.setItem(receiptRollStorageKey, String(state.receiptRollCollapsed));
+}
+
+function renderAccount() {
+  const localCount = getLocalReceipts().length;
+
+  if (!supabaseClient) {
+    els.accountTitle.textContent = "Private on this device";
+    els.accountStatus.textContent = "Cloud sync is unavailable right now. Local receipts still work on this device.";
+    els.authForm.hidden = true;
+    els.signOutBtn.hidden = true;
+    els.migrateReceiptsBtn.hidden = true;
+    return;
+  }
+
+  if (state.session) {
+    els.accountTitle.textContent = "Syncing to your account";
+    els.accountStatus.textContent = `Signed in as ${state.session.user.email}. Receipts are saved to your secure account.`;
+    els.authForm.hidden = true;
+    els.signOutBtn.hidden = false;
+    els.migrateReceiptsBtn.hidden = localCount === 0;
+    els.migrateReceiptsBtn.textContent = localCount === 1 ? "Move 1 local receipt into account" : `Move ${localCount} local receipts into account`;
+    return;
+  }
+
+  els.accountTitle.textContent = "Private on this device";
+  els.accountStatus.textContent = "Sign in to sync receipts across devices. Local mode still works without an account.";
+  els.authForm.hidden = false;
+  els.signOutBtn.hidden = true;
+  els.migrateReceiptsBtn.hidden = true;
+}
+
+async function loadCloudReceipts() {
+  if (!supabaseClient || !state.session) return;
+
+  const { data, error } = await supabaseClient
+    .from("receipts")
+    .select("*")
+    .order("receipt_date", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    alert("I could not load cloud receipts yet. Local receipts are still safe on this device.");
+    return;
+  }
+
+  state.receipts = (data || []).map(rowToReceipt);
+  populatePeople();
+  populatePersonFilter();
+  populateExportPerson();
+  renderAll();
+}
+
+async function handleSignIn(event) {
+  event.preventDefault();
+  if (!supabaseClient) return;
+
+  const email = els.authEmail.value.trim();
+  if (!email) {
+    alert("Please enter an email address first.");
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: window.location.href.split("#")[0]
+    }
+  });
+
+  if (error) {
+    alert(`I could not send the sign-in link: ${error.message}`);
+    return;
+  }
+
+  els.authEmail.value = "";
+  alert("Check your email for the Household Receipts sign-in link.");
+}
+
+async function handleSignOut() {
+  if (!supabaseClient) return;
+  await supabaseClient.auth.signOut();
+  state.session = null;
+  loadReceipts();
+  renderAccount();
+  renderAll();
+}
+
+async function migrateLocalReceipts() {
+  if (!supabaseClient || !state.session) return;
+
+  const localReceipts = getLocalReceipts();
+  if (!localReceipts.length) {
+    renderAccount();
+    return;
+  }
+
+  if (!confirm(`Move ${localReceipts.length} local receipts into this signed-in account?`)) return;
+
+  const rows = localReceipts.map((receipt) => receiptToRow(receipt));
+  const { error } = await supabaseClient
+    .from("receipts")
+    .upsert(rows, { onConflict: "id" });
+
+  if (error) {
+    alert(`I could not move those receipts yet: ${error.message}`);
+    return;
+  }
+
+  localStorage.removeItem(storageKey);
+  await loadCloudReceipts();
+  renderAccount();
+  alert("Local receipts moved into your account.");
+}
+
+async function initAuth() {
+  if (!supabaseClient) {
+    renderAccount();
+    return;
+  }
+
+  const { data } = await supabaseClient.auth.getSession();
+  state.session = data.session;
+
+  supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+    state.session = session;
+    if (state.session) {
+      await loadCloudReceipts();
+    } else {
+      loadReceipts();
+      renderAll();
+    }
+    renderAccount();
+  });
+
+  if (state.session) {
+    await loadCloudReceipts();
+  }
+
+  renderAccount();
 }
 
 function renderSummaryVisibility() {
@@ -575,8 +775,24 @@ async function handleSubmit(event) {
     createdAt: new Date().toISOString()
   };
 
-  state.receipts.push(receipt);
-  saveReceipts();
+  if (state.session && supabaseClient) {
+    const { data, error } = await supabaseClient
+      .from("receipts")
+      .insert(receiptToRow(receipt))
+      .select()
+      .single();
+
+    if (error) {
+      alert(`I could not save that receipt to your account: ${error.message}`);
+      return;
+    }
+
+    state.receipts.push(rowToReceipt(data));
+  } else {
+    state.receipts.push(receipt);
+    saveReceipts();
+  }
+
   els.form.reset();
   els.logDate.value = receipt.date;
   els.minutes.value = 15;
@@ -760,9 +976,23 @@ async function importBackupFile(file) {
 
     if (!addedCount || !confirm(message)) return;
 
-    state.receipts = mergedReceipts;
-    saveReceipts();
-    renderAll();
+    if (state.session && supabaseClient) {
+      const rows = importedReceipts.map((receipt) => receiptToRow(receipt));
+      const { error } = await supabaseClient
+        .from("receipts")
+        .upsert(rows, { onConflict: "id" });
+
+      if (error) {
+        alert(`I could not import those receipts into your account: ${error.message}`);
+        return;
+      }
+
+      await loadCloudReceipts();
+    } else {
+      state.receipts = mergedReceipts;
+      saveReceipts();
+      renderAll();
+    }
     alert(`Imported ${addedCount} receipts.`);
   } catch {
     alert("I could not read that backup file. Please choose a Household Receipts JSON backup.");
@@ -858,20 +1088,45 @@ function downloadFile(filename, type, content) {
   URL.revokeObjectURL(url);
 }
 
-function clearData() {
+async function clearData() {
   if (!state.receipts.length) return;
-  if (confirm("Clear all locally stored receipts?")) {
+  const location = state.session ? "cloud receipts in this account" : "locally stored receipts";
+  if (confirm(`Clear all ${location}?`)) {
+    if (state.session && supabaseClient) {
+      const { error } = await supabaseClient
+        .from("receipts")
+        .delete()
+        .eq("user_id", state.session.user.id);
+
+      if (error) {
+        alert(`I could not clear cloud receipts: ${error.message}`);
+        return;
+      }
+    }
+
     state.receipts = [];
     saveReceipts();
     renderAll();
   }
 }
 
-function deleteReceipt(id) {
+async function deleteReceipt(id) {
   const receipt = state.receipts.find((item) => item.id === id);
   if (!receipt) return;
 
   if (confirm(`Delete "${receipt.taskName}" from ${formatDate(receipt.date)}?`)) {
+    if (state.session && supabaseClient) {
+      const { error } = await supabaseClient
+        .from("receipts")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        alert(`I could not delete that cloud receipt: ${error.message}`);
+        return;
+      }
+    }
+
     state.receipts = state.receipts.filter((item) => item.id !== id);
     saveReceipts();
     renderAll();
@@ -893,6 +1148,9 @@ function updateReceiptFilters() {
 
 function bindEvents() {
   els.form.addEventListener("submit", handleSubmit);
+  els.authForm.addEventListener("submit", handleSignIn);
+  els.signOutBtn.addEventListener("click", handleSignOut);
+  els.migrateReceiptsBtn.addEventListener("click", migrateLocalReceipts);
   els.person.addEventListener("change", () => {
     if (els.person.value === "__add_person__") addCustomPerson();
   });
@@ -924,7 +1182,7 @@ function bindEvents() {
   });
 }
 
-function init() {
+async function init() {
   els.logDate.value = todayKey();
   loadCustomOptions();
   populatePeople();
@@ -937,6 +1195,7 @@ function init() {
   renderExportOptions();
   renderDailyReceipt();
   renderAll();
+  await initAuth();
 }
 
 init();

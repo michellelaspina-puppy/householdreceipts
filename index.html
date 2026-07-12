@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260711-weekly-paper-trail">
+    <link rel="stylesheet" href="styles.css?v=20260712-supabase-sync">
   </head>
   <body>
     <main class="app-shell">
@@ -37,6 +37,22 @@
             </div>
           </div>
         </header>
+
+        <section class="account-card" aria-label="Account sync">
+          <div>
+            <p class="eyebrow">Account Sync</p>
+            <h3 id="accountTitle">Private on this device</h3>
+            <p id="accountStatus" class="panel-copy">Sign in to sync receipts across devices. Local mode still works without an account.</p>
+          </div>
+          <form id="authForm" class="auth-form">
+            <input id="authEmail" type="email" placeholder="Email address" autocomplete="email" aria-label="Email address">
+            <button class="btn secondary" type="submit">Email sign-in link</button>
+          </form>
+          <div class="account-actions">
+            <button class="text-btn" id="migrateReceiptsBtn" type="button" hidden>Move local receipts into account</button>
+            <button class="text-btn" id="signOutBtn" type="button" hidden>Sign out</button>
+          </div>
+        </section>
 
         <section class="daily-receipt-card" aria-label="Daily receipt">
           <div class="receipt-icon" aria-hidden="true">
@@ -301,7 +317,8 @@
         </section>
       </section>
     </main>
-    <script src="app.js?v=20260711-weekly-paper-trail" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js?v=20260712-supabase-sync" defer></script>
   </body>
 </html>
 
