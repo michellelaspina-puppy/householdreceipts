@@ -538,6 +538,13 @@ textarea {
   grid-column: 1 / -1;
 }
 
+.form-submit-btn {
+  grid-column: 1 / -1;
+  justify-self: end;
+  min-width: 180px;
+  min-height: 44px;
+}
+
 .time-row {
   display: flex;
   align-items: center;
@@ -856,6 +863,11 @@ textarea:focus-visible {
   .section-actions {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .form-submit-btn {
+    width: 100%;
+    justify-self: stretch;
   }
 
   .task-form,
