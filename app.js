@@ -124,6 +124,7 @@ const els = {
   exportStartDate: document.querySelector("#exportStartDate"),
   exportEndDate: document.querySelector("#exportEndDate"),
   exportBackupBtn: document.querySelector("#exportBackupBtn"),
+  floatingAddBtn: document.querySelector("#floatingAddBtn"),
   importBackupBtn: document.querySelector("#importBackupBtn"),
   importBackupInput: document.querySelector("#importBackupInput"),
   clearDataBtn: document.querySelector("#clearDataBtn"),
@@ -1259,6 +1260,10 @@ function bindEvents() {
   els.exportPdfBtn.addEventListener("click", exportPdf);
   els.exportRange.addEventListener("change", renderExportOptions);
   els.exportBackupBtn.addEventListener("click", exportBackup);
+  els.floatingAddBtn.addEventListener("click", () => {
+    els.form.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => els.taskName.focus(), 350);
+  });
   els.importBackupBtn.addEventListener("click", () => els.importBackupInput.click());
   els.importBackupInput.addEventListener("change", () => importBackupFile(els.importBackupInput.files[0]));
   els.toggleSummaryBtn.addEventListener("click", toggleSummary);

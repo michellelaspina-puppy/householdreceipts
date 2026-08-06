@@ -9,6 +9,7 @@
   --accent: #245c4f;
   --accent-2: #cf6f4a;
   --accent-3: #8565c4;
+  --dusty-blue: #7893a3;
   --soft-green: #e3f1eb;
   --soft-clay: #fae7de;
   --shadow: 0 22px 70px rgba(71, 55, 37, 0.14);
@@ -96,6 +97,49 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.dashboard-heading {
+  margin-top: 4px;
+}
+
+.dashboard-heading h3 {
+  margin-bottom: 0;
+  font-size: clamp(1.25rem, 4vw, 1.65rem);
+}
+
+.floating-add {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 58px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--dusty-blue));
+  color: #fff;
+  box-shadow: 0 16px 36px rgba(36, 92, 79, 0.28);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.floating-add span {
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+@media (min-width: 900px) {
+  .floating-add { display: none; }
+}
+
+@media print {
+  .floating-add { display: none !important; }
 }
 
 .hidden-input {

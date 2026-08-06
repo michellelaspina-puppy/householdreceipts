@@ -51,7 +51,11 @@
           </div>
         </section>
 
-        <section class="balance-grid" aria-label="Household balance dashboard">
+        <div class="dashboard-heading">
+          <p class="eyebrow">Household balance</p>
+          <h3>Today's Household Summary</h3>
+        </div>
+        <section class="balance-grid" aria-label="Today's Household Summary">
           <article class="metric-card mine">
             <span>My tasks today</span>
             <strong id="myTaskCount">0</strong>
@@ -317,6 +321,9 @@
         </section>
       </section>
     </main>
+    <button class="floating-add" id="floatingAddBtn" type="button" aria-label="Add a household receipt">
+      <span aria-hidden="true">+</span> Add
+    </button>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="app.js?v=20260712-compact-save-button" defer></script>
   </body>
