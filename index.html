@@ -4,40 +4,58 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Household Receipts</title>
-    <meta name="description" content="Track household labor, time, proof, and partner contributions privately on your device.">
+    <meta name="description" content="Track household labor, time, proof, and shared responsibilities privately on your device.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20260712-compact-save-button">
   </head>
   <body>
     <main class="app-shell">
       <section class="hero">
         <div>
-          <p class="eyebrow">Household Receipts 2.0</p>
+          <p class="eyebrow">Proof, not paper.</p>
           <h1>Household Receipts</h1>
-          <p class="tagline">Because someone has to keep the receipts.</p>
-          <p class="intro">Track the invisible work that keeps your household running. Log what got done, who did it, and how much time it took.</p>
-        </div>
-        <div class="hero-actions">
-          <button class="btn primary" id="exportCsvBtn" type="button">Export spreadsheet</button>
-          <button class="btn secondary" id="exportPdfBtn" type="button">Export PDF</button>
+          <p class="tagline">Turns out the house wasn't cleaning itself after all.</p>
+          <p class="intro">Track the invisible work, the time it took, and the proof that keeps household labor from disappearing into thin air.</p>
         </div>
       </section>
 
       <section class="phone-frame" aria-label="Household Receipts app dashboard">
         <header class="app-header">
           <div>
-            <span class="status-pill">Private on this device</span>
-            <h2>Today’s balance</h2>
+            <h2>Today's Paper Trail</h2>
           </div>
-          <label class="date-control">
-            <span>Date</span>
-            <input id="logDate" type="date">
-          </label>
+          <div class="date-control" aria-label="Receipt date controls">
+            <span class="date-top">
+              <button class="date-today-btn" id="todayBtn" type="button">Today</button>
+            </span>
+            <div class="date-row">
+              <button class="date-nav-btn" id="previousDayBtn" type="button" aria-label="Previous day">&lt;</button>
+              <input id="logDate" type="date" aria-label="Receipt date">
+              <button class="date-nav-btn" id="nextDayBtn" type="button" aria-label="Next day">&gt;</button>
+            </div>
+          </div>
         </header>
 
-        <section class="balance-grid" aria-label="Household balance dashboard">
+        <section class="daily-receipt-card" aria-label="Daily receipt">
+          <div class="receipt-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <path d="M7 3h10a2 2 0 0 1 2 2v16l-2.5-1.4L14 21l-2-1.4L9.5 21 7 19.6 5 21V5a2 2 0 0 1 2-2Z"></path>
+              <path d="M9 8h6M9 12h6M9 16h4"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="eyebrow">Daily Receipt</p>
+            <p id="dailyReceipt" class="daily-receipt-message"></p>
+          </div>
+        </section>
+
+        <div class="dashboard-heading">
+          <p class="eyebrow">Household balance</p>
+          <h3>Today's Household Summary</h3>
+        </div>
+        <section class="balance-grid" aria-label="Today's Household Summary">
           <article class="metric-card mine">
             <span>My tasks today</span>
             <strong id="myTaskCount">0</strong>
@@ -64,11 +82,36 @@
           </article>
         </section>
 
+        <section class="weekly-recap-card" aria-label="Weekly paper trail">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Weekly Paper Trail</p>
+              <h3>This Week's Receipts</h3>
+            </div>
+            <span id="weeklyRange" class="microcopy"></span>
+          </div>
+          <p id="weeklyRecapMessage" class="weekly-recap-message"></p>
+          <div class="weekly-recap-grid">
+            <div>
+              <span>Receipts</span>
+              <strong id="weeklyTasks">0</strong>
+            </div>
+            <div>
+              <span>Time</span>
+              <strong id="weeklyTime">0m</strong>
+            </div>
+            <div>
+              <span>Top category</span>
+              <strong id="weeklyTopCategory">None yet</strong>
+            </div>
+          </div>
+        </section>
+
         <section class="panel">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Daily task logging</p>
-              <h3>Add a receipt</h3>
+              <h3>Add a Receipt</h3>
             </div>
             <span class="microcopy">Factual. Funny. Useful later.</span>
           </div>
@@ -76,10 +119,7 @@
           <form id="taskForm" class="task-form">
             <label>
               <span>Who did it?</span>
-              <select id="person" required>
-                <option value="me">Me</option>
-                <option value="partner">Partner</option>
-              </select>
+              <select id="person" required></select>
             </label>
 
             <label>
@@ -111,7 +151,7 @@
               <small>Stored locally in your browser with the rest of your receipts.</small>
             </label>
 
-            <button class="btn primary full" type="submit">Save receipt</button>
+            <button class="btn primary form-submit-btn" type="submit">Save receipt</button>
           </form>
         </section>
 
@@ -125,43 +165,167 @@
           <div class="section-heading">
             <div>
               <p class="eyebrow" id="reportEyebrow">Daily summary</p>
-              <h3 id="reportTitle">What got done</h3>
+              <h3 id="reportTitle">What Got Done</h3>
             </div>
-            <span id="reportRange" class="microcopy"></span>
-          </div>
-          <div class="report-grid">
-            <div class="report-stat">
-              <span>Tasks completed</span>
-              <strong id="reportTasks">0</strong>
-            </div>
-            <div class="report-stat">
-              <span>Hours spent</span>
-              <strong id="reportHours">0.0</strong>
-            </div>
-            <div class="report-stat">
-              <span>My work</span>
-              <strong id="reportMine">0m</strong>
-            </div>
-            <div class="report-stat">
-              <span>Partner work</span>
-              <strong id="reportPartner">0m</strong>
+            <div class="section-actions">
+              <span id="reportRange" class="microcopy"></span>
+              <button class="text-btn" id="toggleSummaryBtn" type="button" aria-expanded="true" aria-controls="reportDetails">Hide details</button>
             </div>
           </div>
-          <div id="categoryBreakdown" class="category-breakdown"></div>
+          <div id="reportDetails" class="report-details">
+            <div class="report-grid">
+              <div class="report-stat">
+                <span>Tasks completed</span>
+                <strong id="reportTasks">0</strong>
+              </div>
+              <div class="report-stat">
+                <span>Hours spent</span>
+                <strong id="reportHours">0.0</strong>
+              </div>
+              <div class="report-stat">
+                <span>My work</span>
+                <strong id="reportMine">0m</strong>
+              </div>
+              <div class="report-stat">
+                <span>Partner work</span>
+                <strong id="reportPartner">0m</strong>
+              </div>
+              <div class="report-stat">
+                <span>Helpers</span>
+                <strong id="reportChildren">0m</strong>
+              </div>
+              <div class="report-stat">
+                <span>Friends</span>
+                <strong id="reportFriend">0m</strong>
+              </div>
+              <div class="report-stat">
+                <span>Family</span>
+                <strong id="reportFamily">0m</strong>
+              </div>
+              <div class="report-stat">
+                <span>Others</span>
+                <strong id="reportOther">0m</strong>
+              </div>
+            </div>
+            <div id="categoryBreakdown" class="category-breakdown"></div>
+          </div>
         </section>
 
-        <section class="panel">
+        <section class="panel receipt-roll-panel" id="receiptRollPanel">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Receipt roll</p>
-              <h3>Recent household work</h3>
+              <h3>Recent Household Work</h3>
             </div>
-            <button class="text-btn" id="clearDataBtn" type="button">Clear all</button>
+            <div class="section-actions">
+              <button class="text-btn" id="toggleReceiptRollBtn" type="button" aria-expanded="true" aria-controls="receiptList">Hide roll</button>
+              <button class="text-btn" id="clearDataBtn" type="button">Clear all</button>
+            </div>
+          </div>
+          <div class="receipt-tools" aria-label="Receipt roll filters">
+            <label>
+              <span>Search receipts</span>
+              <input id="receiptSearch" type="search" placeholder="Search task, note, or category">
+            </label>
+            <label>
+              <span>Who</span>
+              <select id="receiptPersonFilter">
+                <option value="all">Everyone</option>
+                <option value="me">Me</option>
+                <option value="partner">Partner</option>
+                <option value="children">Little helpers</option>
+                <option value="friend">Friend</option>
+                <option value="family">Family</option>
+              </select>
+            </label>
           </div>
           <div id="receiptList" class="receipt-list"></div>
         </section>
+
+        <section class="panel export-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Exports</p>
+              <h3>Take the Receipts With You</h3>
+            </div>
+            <span class="microcopy">Save, share, or print.</span>
+          </div>
+          <p class="panel-copy">Download a copy when you want to review, share, print, or save the paper trail somewhere else.</p>
+          <div class="export-options" aria-label="Export options">
+            <label>
+              <span>Date range</span>
+              <select id="exportRange">
+                <option value="daily">Selected day</option>
+                <option value="weekly">Selected week</option>
+                <option value="monthly">Selected month</option>
+                <option value="all">All receipts</option>
+                <option value="custom">Custom range</option>
+              </select>
+            </label>
+            <label>
+              <span>Who</span>
+              <select id="exportPerson"></select>
+            </label>
+            <label>
+              <span>PDF style</span>
+              <select id="exportDetail">
+                <option value="full">Summary + receipt list</option>
+                <option value="summary">Summary only</option>
+              </select>
+            </label>
+            <label class="export-custom-date">
+              <span>Start</span>
+              <input id="exportStartDate" type="date">
+            </label>
+            <label class="export-custom-date">
+              <span>End</span>
+              <input id="exportEndDate" type="date">
+            </label>
+          </div>
+          <div class="utility-actions">
+            <button class="btn primary" id="exportCsvBtn" type="button">Export Spreadsheet</button>
+            <button class="btn secondary" id="exportPdfBtn" type="button">Export PDF</button>
+          </div>
+        </section>
+
+        <section class="account-card" aria-label="Account sync">
+          <div>
+            <p class="eyebrow">Account Sync</p>
+            <h3 id="accountTitle">Private on this device</h3>
+            <p id="accountStatus" class="panel-copy">Sign in to sync receipts across devices. Local mode still works without an account.</p>
+          </div>
+          <form id="authForm" class="auth-form">
+            <input id="authEmail" type="email" placeholder="Email address" autocomplete="email" aria-label="Email address">
+            <button class="btn secondary" type="submit">Email sign-in link</button>
+          </form>
+          <div class="account-actions">
+            <button class="text-btn" id="migrateReceiptsBtn" type="button" hidden>Move local receipts into account</button>
+            <button class="text-btn" id="signOutBtn" type="button" hidden>Sign out</button>
+          </div>
+        </section>
+
+        <section class="panel portability-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Device backup</p>
+              <h3>Move Receipts Safely</h3>
+            </div>
+            <span class="microcopy">Local first. Yours to carry.</span>
+          </div>
+          <p class="panel-copy">Export a private backup file, then import it on another phone, tablet, or computer. Existing receipts stay put.</p>
+          <div class="utility-actions">
+            <button class="btn secondary" id="exportBackupBtn" type="button">Backup receipts</button>
+            <button class="btn secondary" id="importBackupBtn" type="button">Import backup</button>
+            <input class="hidden-input" id="importBackupInput" type="file" accept="application/json,.json">
+          </div>
+        </section>
       </section>
     </main>
-    <script src="app.js" defer></script>
+    <button class="floating-add" id="floatingAddBtn" type="button" aria-label="Add a household receipt">
+      <span aria-hidden="true">+</span> Add
+    </button>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js?v=20260712-compact-save-button" defer></script>
   </body>
 </html>
+
