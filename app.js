@@ -97,6 +97,9 @@ const els = {
   weeklyTasks: document.querySelector("#weeklyTasks"),
   weeklyTime: document.querySelector("#weeklyTime"),
   weeklyTopCategory: document.querySelector("#weeklyTopCategory"),
+  shareBtn: document.querySelector("#shareBtn"),
+weeklyToggle: document.querySelector("#weeklyToggle"),
+weeklyDetails: document.querySelector("#weeklyDetails"),
   reportEyebrow: document.querySelector("#reportEyebrow"),
   reportTitle: document.querySelector("#reportTitle"),
   reportRange: document.querySelector("#reportRange"),
@@ -1242,6 +1245,34 @@ function updateReceiptFilters() {
 }
 
 function bindEvents() {
+  els.shareBtn?.addEventListener("click", async () => {
+  const shareData = {
+    title: "Household Receipts",
+    text: "Check out Household Receipts",
+    url: window.location.href
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch (error) {
+      if (error.name !== "AbortError") console.error(error);
+    }
+  } else {
+    await navigator.clipboard.writeText(window.location.href);
+    alert("Link copied!");
+  }
+});
+  els.weeklyToggle?.addEventListener("click", () => {
+  const isOpen = els.weeklyToggle.getAttribute("aria-expanded") === "true";
+
+  els.weeklyToggle.setAttribute("aria-expanded", String(!isOpen));
+  els.weeklyDetails.hidden = isOpen;
+
+  els.weeklyToggle.innerHTML = isOpen
+    ? '<span aria-hidden="true">⌄</span> Show'
+    : '<span aria-hidden="true">⌃</span> Hide';
+});
   els.form.addEventListener("submit", handleSubmit);
   els.authForm.addEventListener("submit", handleSignIn);
   els.signOutBtn.addEventListener("click", handleSignOut);
