@@ -19,6 +19,9 @@
           <p class="tagline">Turns out the house wasn't cleaning itself after all.</p>
           <p class="intro">Track the invisible work, the time it took, and the proof that keeps household labor from disappearing into thin air.</p>
         </div>
+        <button class="share-btn" id="shareBtn" type="button" aria-label="Share Household Receipts">
+  <span aria-hidden="true">↗</span> Share
+</button>
       </section>
 
       <section class="phone-frame" aria-label="Household Receipts app dashboard">
@@ -89,7 +92,11 @@
               <h3>This Week's Receipts</h3>
             </div>
             <span id="weeklyRange" class="microcopy"></span>
+          <button class="collapse-btn" id="weeklyToggle" type="button" aria-expanded="false" aria-controls="weeklyDetails">
+  <span aria-hidden="true">⌄</span> Show
+</button>  
           </div>
+          <div id="weeklyDetails" hidden>
           <p id="weeklyRecapMessage" class="weekly-recap-message"></p>
           <div class="weekly-recap-grid">
             <div>
